@@ -2,11 +2,11 @@
 
 set -o allexport
 
-sta_i_pCaLs=11
-end_i_pCaLs=11
+sta_i_pCaLs=1
+end_i_pCaLs=21
 
 sta_i_batch_KM=1
-end_i_batch_KM=6
+end_i_batch_KM=16
 n_batch_KM=6
 
 for i_pCaLs in $(eval echo "{$sta_i_pCaLs..$end_i_pCaLs}") 

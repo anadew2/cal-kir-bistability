@@ -414,7 +414,7 @@ end
 i_gKir_outw = parse(Int64, ARGS[1]) #1:length(gKir_KirCaLs_outw)
 
 ### INPUTS ###
-    n_batch_outw = 5
+    n_batch_outw = 3
 
     V_ic = -90.     # [mV]
     Ca_ic = 5.0e-5  # [mM]

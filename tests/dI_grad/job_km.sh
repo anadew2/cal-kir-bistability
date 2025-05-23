@@ -1,5 +1,8 @@
 #!/bin/sh 
 #
+#SBATCH --job-name=dI_KMCaLs
+#SBATCH --output=data/output/dI_KMCaLs-%j.txt
+#SBATCH --error=data/output/dI_KMCaLs--%j.err
 #SBATCH --partition=batch
 #
 #SBATCH --time=2:30:00
