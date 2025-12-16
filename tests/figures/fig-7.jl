@@ -3,188 +3,153 @@ using Unitful, Latexify, UnitfulLatexify
 using PlotlyJS, CSV, DataFrames
 using JLD
 
-include("../sim_pulse_step/sim_inward.jl");
-include("../sim_pulse_step/sim_outward.jl");
-include("../sim_pulse_step/steady_state_currents.jl")
+include("../dI_grad/local_postpro_output.jl")
+include("../dI_var_mc/local_postpro_outputs.jl");
 
+trace_sc_Kir3 = PlotlyJS.scatter(x=(C_mat_KirCaLs_var30.-C)./C,y=(dI_KirCaLs_var30.-dI_KirCaLs[41,51])./ dI_KirCaLs[41,51], mode="markers",marker_color=palette(:PuRd_7,rev=true)[2],legendgroup="groupKir",legendgrouptitle_text="Kir",name="30%",yaxis_tickvals = -0.3:0.1:0.3,yaxis_ticktext = ["-30%", "-20%", "-10%", "0%", "10%", "20%", "30%"])
+trace_sc_KM3 = PlotlyJS.scatter(x=(C_mat_KMCaLs_var30.-C)./C,y=(dI_KMCaLs_var30.-dI_KMCaLs[41,51])./ dI_KMCaLs[41,51] , mode="markers",marker_color=palette(:Purples_7,rev=true)[2],legendgroup="groupKM",legendgrouptitle_text="KM",name="30%")
+trace_sc_Kir2 = PlotlyJS.scatter(x=(C_mat_KirCaLs_var20.-C)./C,y=(dI_KirCaLs_var20.-dI_KirCaLs[41,51])./ dI_KirCaLs[41,51] , mode="markers",marker_color=palette(:PuRd_7,rev=true)[3],legendgroup="groupKir",legendgrouptitle_text="Kir",name="20%")
+trace_sc_KM2 = PlotlyJS.scatter(x=(C_mat_KMCaLs_var20.-C)./C,y=(dI_KMCaLs_var20.-dI_KMCaLs[41,51])./ dI_KMCaLs[41,51] , mode="markers",marker_color=palette(:Purples_7,rev=true)[3],legendgroup="groupKM",legendgrouptitle_text="KM",name="20%")
+trace_sc_Kir1 = PlotlyJS.scatter(x=(C_mat_KirCaLs_var10.-C)./C,y=(dI_KirCaLs_var10.-dI_KirCaLs[41,51])./ dI_KirCaLs[41,51] , mode="markers",marker_color=palette(:PuRd_7,rev=true)[4],legendgroup="groupKir",legendgrouptitle_text="Kir",name="10%")
+trace_sc_KM1 = PlotlyJS.scatter(x=(C_mat_KMCaLs_var10.-C)./C,y=(dI_KMCaLs_var10.-dI_KMCaLs[41,51])./ dI_KMCaLs[41,51], mode="markers",marker_color=palette(:Purples_7,rev=true)[4],legendgroup="groupKM",legendgrouptitle_text="KM",name="10%")
 
-function plt_kir_in_out_Ibist(g,I1,I2,lc_,xname)
-    lim_I = (1,3)
-    leg_pos = :none
-    lw_ = 2
-    fontsize_ = 25
+trace_Kirfull = box(
+    x=vcat("10%".*replace.(string.(Int.(zeros(size(dI_KirCaLs_var10)))),"0" => ""),"20%".*replace.(string.(Int.(zeros(size(dI_KirCaLs_var20)))),"0" => ""),"30%".*replace.(string.(Int.(zeros(size(dI_KirCaLs_var30)))),"0" => "")),
+    y=vcat((dI_KirCaLs_var10.-dI_KirCaLs[41,51])./ dI_KirCaLs[41,51],(dI_KirCaLs_var20.-dI_KirCaLs[41,51])./ dI_KirCaLs[41,51],(dI_KirCaLs_var30.-dI_KirCaLs[41,51])./ dI_KirCaLs[41,51]),
+    legendgroup="group",  # this can be any string, not just "group"
+    legendgrouptitle_text="Model used",
+    name="Kir",
+    showlegend=true,
+    boxpoints="all",
+    marker_color=palette(:PuRd_7,rev=true)[2], #RGB(0.95,0.62,0.75),
+    fillcolor=palette(:PuRd_7,rev=true)[4],
+    #boxpoints="all",
+    whiskerwidth=0.4,
+    marker_size = 3,
+    line_width = 1.5,
+    boxmean=true # represent mean
+    )
+trace_KMfull = box(
+    x=vcat("10%".*replace.(string.(Int.(zeros(size(dI_KMCaLs_var10)))),"0" => ""),"20%".*replace.(string.(Int.(zeros(size(dI_KMCaLs_var20)))),"0" => ""),"30%".*replace.(string.(Int.(zeros(size(dI_KMCaLs_var30)))),"0" => "")),
+    y=vcat((dI_KMCaLs_var10.-dI_KMCaLs[41,51])./ dI_KMCaLs[41,51],(dI_KMCaLs_var20.-dI_KMCaLs[41,51])./ dI_KMCaLs[41,51],(dI_KMCaLs_var30.-dI_KMCaLs[41,51])./ dI_KMCaLs[41,51]),
+    legendgroup="group",
+    name="KM",
+    showlegend=true,
+    marker_color=palette(:Purples_7,rev=true)[2], #RGB(0.95,0.62,0.75),
+    fillcolor=palette(:Purples_7,rev=true)[4],
+    boxpoints="all",
+    whiskerwidth=0.4,
+    marker_size = 3,
+    line_width = 1.5,
+    boxmean=true # represent mean
+    )
 
-    plt = Plots.plot()
-    plot!(g,I1,lc=lc_,lw=lw_,label=:none)
-    plot!(g,I1,lc=lc_,lw=2,label=L"I_1")
-    #plot!(g,I2,lc=lc_,lw=lw_,ls=:dash,label=:none)
-    #plot!(g,NaN.*I2,lc=lc_,lw=1.5,ls=:dash,label=L"I_2")
-    plot!(g,I1,fillrange=convert.(Float64,I2),c=lc_,fillalpha=0.05,lw=1.,linealpha=0.,lc=lc_,label=:none)
-    #plot!(ylabel=L"I\,~"  *L"(" *latexify(u"µA/cm^2") *L")",ylabelfontsize=fontsize_,ylims=lim_I,yticks=[ceil(lim_I[1]),0,floor(lim_I[2])])
-    plot!(ylabel=L"\Delta I\,~"  *L"(" *latexify(u"µA/cm^2") *L")",ylabelfontsize=fontsize_,ylims=lim_I,yticks=[ceil(lim_I[1]),0,floor(lim_I[2])])
-    plot!(xlabel=xname,xlabelfontsize=fontsize_,xticks=[minimum(g),maximum(g)])
-    plot!(tickfont = "Computer Modern",tickfontsize=fontsize_)
-    plot!(grid=false,legend=leg_pos,legendfontfamily="Computer Modern",tickfontfamily="Computer Modern",legendfontsize=fontsize_,foreground_color_legend=nothing,background_color_legend=nothing)
-    return plt
-end
+    layout = PlotlyJS.Layout(
+        title="",
+        yaxis=attr(
+                title="Change in level of bistability",
+                showgrid=true,
+                gridcolor="rgb(243,243,243)",
+                #tickvals=0:0.01:0.1,
+                autorange=true,
+                dtick=0.1,
+                zeroline=true,
+                zerolinecolor="rgb(243,243,243)",
+                zerolinewidth=1,
+                tickmode = "array",
+                tickvals = -0.3:0.1:0.3,
+                ticktext = ["-30%", "-20%", "-10%", "0%", "10%", "20%", "30%"],
+                range=[-0.3,0.3]
+            ),
+        xaxis=attr(title="Model used"),    
+        margin=attr(
+                l=40,
+                r=30,
+                b=80,
+                t=80
+            ),
+        paper_bgcolor="rgb(255,255,255)",
+        plot_bgcolor="rgb(255,255,255)",
+        font_family="Computer Modern",
+        font_size=20,
+        fgcolor="rgb(255,255,255)",
+        showlegend=true, 
+        boxmode="group"
+    )
 
-function plt_Iss_in_out(V,Iss,Iss_in,lc_Iss_in,yname,ylims_)
-    fontsize_ = 25
-    lw = 2
-    lc_Iss = RGB(0.7,0.7,0.7)
+    layout_sc = PlotlyJS.Layout(
+        title="",
+        yaxis=attr(
+                showgrid=false,
+                gridcolor="rgb(243,243,243)",
+                #tickvals=0:0.01:0.1,
+                autorange=true,
+                dtick=0.1,
+                zeroline=true,
+                zerolinecolor="rgb(255,255,255)",
+                zerolinewidth=0,
+                tickmode = "array",
+                tickvals = -0.3:0.1:0.3,
+                ticktext = ["-30%", "-20%", "-10%", "0%", "10%", "20%", "30%"],
+                range=[-0.3,0.3]
+            ),
+        xaxis=attr(
+                title="Change in C",
+                tickvals = -0.3:0.1:0.3,
+                ticktext = ["-30%", "-20%", "-10%", "0%", "10%", "20%", "30%"]
+            ),       
+        margin=attr(
+                l=40,
+                r=30,
+                b=80,
+                t=80
+            ),
+        paper_bgcolor="rgb(255,255,255)",
+        plot_bgcolor="rgb(255,255,255)",
+        font_family="Computer Modern",
+        font_size=20,
+        showlegend=true
+    )
 
-    plt = Plots.plot()
-    plot!(V,zeros(size(V)),lw=1,lc=RGB(0.9,0.9,0.9))
-    plot!(V,Iss,lc=lc_Iss,lw=lw,ls=:dot)
-    plot!(V,Iss_in,lc=lc_Iss_in,lw=lw)
-    plot!(ylabel=yname,yticks=[0],ylabelfontsize=fontsize_,ylims=ylims_)
-    plot!(xlabel=L"V\,~"  *L"(" *latexify(u"mV") *L")" ,xlabelfontsize=fontsize_,xticks=-120:30:-30)
-    plot!(tickfont = "Computer Modern",tickfontsize=fontsize_)
-    plot!(grid=:y,legend=:none)
-    return plt
-end
+scplots1 = [trace_sc_Kir3, trace_sc_Kir2, trace_sc_Kir1, trace_sc_KM3, trace_sc_KM2, trace_sc_KM1]
+pl1=PlotlyJS.plot(scplots1,layout_sc)
+boxplots2=[trace_Kirfull, trace_KMfull]
+pl2=Plot(boxplots2, layout)
+fig = make_subplots(rows=1, cols=2,
+specs=reshape([Spec(kind="scatter")
+            Spec(kind="box")], 1,2))
+            
+    add_trace!(fig, trace_sc_Kir3, row=1, col=1)
+    add_trace!(fig, trace_sc_Kir2, row=1, col=1)
+    add_trace!(fig, trace_sc_Kir1, row=1, col=1)
+    add_trace!(fig, trace_sc_KM3, row=1, col=1)
+    add_trace!(fig, trace_sc_KM2, row=1, col=1)
+    add_trace!(fig, trace_sc_KM1, row=1, col=1)
 
-function plt_step_response_cgrad_yaxis(t,V,I,yticks_,palette)
-    dt_guide = 200
-    dV_guide = 10
-    dI_guide = 1.
-
-    lw_V = 2
-    fontsize_ = 25
-
-    V_lim_h = maximum(yticks_)+1
-    V_lim_l = minimum(yticks_)-1
-
-    I0 = []
-    for i in eachindex(I)
-        push!(I0,I[i][end])
-    end
-    I_lim_h = maximum(maximum(I))+0.05
-    I_lim_l = minimum(I0)-0.05
-    
-    plt_I = Plots.plot()
-    plot!(plt_I,t,I,line_z=I0',color=cgrad(palette),lw=lw_V)
-    plot!(plt_I,colorbar_title=L"I")
-    plot!(plt_I,colorbar_ticks=false,colorbar_titlefontrotation=90.,colorbar_titlefontsize=fontsize_,colorbar_fontfamily="Computer Modern")
-    plot!(colorbar=false)
-    plot!(ylims=(I_lim_l,I_lim_h))
-    plot!(yticks = ([minimum(I0),maximum(I0)],[L"~ ~ ~ ~ I_1  ~ ",L"~ ~ ~ ~ I_2 ~"]),ylabelfontsize=fontsize_)
-    #plot left guide
-    plot!(plt_I,maximum(maximum(t)) .*1.015 .* ones(2),[maximum(I0)-0.01 ,maximum(I0)-0.01-dI_guide],lc=:black,lw=2)
-    #if write_an == 1
-        annotate!(maximum(maximum(t)) *1.15,maximum(I0)-0.01 -dI_guide/2, latexify(dI_guide * u"µA/cm^2") ,annotationfontsize=fontsize_)
-    #end
-    plot!(grid=false,legend=:none)
-    plot!(foreground_color_border=:black,showaxis=:y,foreground_color_axis=:black,tickfont = "Computer Modern",tickfontsize=fontsize_)
-
-    plt_V = Plots.plot()
-    plot!(plt_V,t,V,line_z=I0',color=cgrad(palette),lw=lw_V)
-    plot!(plt_V,colorbar_title=L"I")
-    plot!(plt_V,colorbar_ticks=false,colorbar_titlefontrotation=90.,colorbar_titlefontsize=fontsize_,colorbar_fontfamily="Computer Modern")
-    plot!(colorbar=false)
-    #plot lower guide
-    plot!([(maximum(maximum(t)))-dt_guide , maximum(maximum(t))],V_lim_l .*ones(2),lc=:black,lw=2)
-    annotate!(((maximum(maximum(t)))-dt_guide + maximum(maximum(t)))/2,V_lim_l*1.058 , latexify(Int(dt_guide) * u"ms"),annotationfontsize=fontsize_)
-    #axis attributes 
-    plot!(xlims=(-maximum(maximum(t))*0.03,maximum(maximum(t))*1.0) )
-    plot!(ylims=(V_lim_l,V_lim_h))
-    plot!(draw_arrow=true)
-    plot!(xticks=0:dt_guide:maximum(maximum(t)))
-    plot!(yticks = yticks_,ylabel=L"V\,~"  *L"(" *latexify(u"mV") *L")" ,ylabelfontsize=fontsize_)
-    plot!(grid=false,legend=:none)
-    plot!(foreground_color_border=:black,showaxis=:y,foreground_color_axis=:black,tickfont = "Computer Modern",tickfontsize=fontsize_)
-
-    plt_IV = Plots.plot(plt_I,plt_V,layout=@layout[a{0.2h} ;b])
-    return plt_IV
-end
-
-
-
-palette_step_kir_inw = palette([:black,palette(:Paired_8)[2],palette(:Paired_8)[1]],length(It_desc_step_Kir_inw))
-palette_step_kir_outw = palette([:black,palette(:Paired_8)[4],palette(:Paired_8)[3]],length(It_desc_step_Kir_outw))
-palette_step_km_inw = palette([:black,palette(:Paired_10)[10],palette(:Paired_10)[9]],length(It_desc_step_KM_inw))
-palette_step_km_outw = palette([:black,palette(:Paired_8)[6],palette(:Paired_8)[5]],length(It_desc_step_KM_outw))
-
-empty_plt = Plots.plot() 
-plot!(grid=false,legend=:none)
-plot!(foreground_color_border=:white,showaxis=false,foreground_color_axis=:white)
-
-
-title_KM_Kir_inw_outw_full_hz_1 = Plots.plot() 
-plot!(grid=false,legend=:none)
-plot!(foreground_color_border=:white,showaxis=false,foreground_color_axis=:white)
-annotate!(-0.15,0.5,L"\textbf{A}",annotationfontsize=35,annotationhalign=:left,annotationfontfamily="Computer Modern")
-title_KM_Kir_inw_outw_full_hz_2 = Plots.plot() 
-plot!(grid=false,legend=:none)
-plot!(foreground_color_border=:white,showaxis=false,foreground_color_axis=:white)
-annotate!(-0.15,0.5,L"\textbf{B}",annotationfontsize=35,annotationhalign=:left,annotationfontfamily="Computer Modern")
-title_KM_Kir_inw_outw_full_hz_3  = Plots.plot() 
-plot!(grid=false,legend=:none)
-plot!(foreground_color_border=:white,showaxis=false,foreground_color_axis=:white)
-annotate!(-0.15,0.5,L"\textbf{C}",annotationfontsize=35,annotationhalign=:left,annotationfontfamily="Computer Modern")
-title_KM_Kir_inw_outw_full_hz_4  = Plots.plot() 
-plot!(grid=false,legend=:none)
-plot!(foreground_color_border=:white,showaxis=false,foreground_color_axis=:white)
-annotate!(-0.15,0.5,L"\textbf{D}",annotationfontsize=35,annotationhalign=:left,annotationfontfamily="Computer Modern")
-title_step_km_inw  = Plots.plot() 
-plot!(grid=false,legend=:none)
-plot!(foreground_color_border=:white,showaxis=false,foreground_color_axis=:white)
-annotate!(0.5,0.,L"\bar{g}_{\mathrm{KM,inward}}=0.15 "*latexify(u"mS/cm^2"),annotationfontsize=25,annotationhalign=:center,annotationfontfamily="Computer Modern")
-title_step_km_outw  = Plots.plot() 
-plot!(grid=false,legend=:none)
-plot!(foreground_color_border=:white,showaxis=false,foreground_color_axis=:white)
-annotate!(0.5,0.,L"\bar{g}_{\mathrm{KM,outward}}=0.15 "*latexify(u"mS/cm^2"),annotationfontsize=25,annotationhalign=:center,annotationfontfamily="Computer Modern")
-title_step_kir_inw  = Plots.plot() 
-plot!(grid=false,legend=:none)
-plot!(foreground_color_border=:white,showaxis=false,foreground_color_axis=:white)
-annotate!(0.5,0.,L"\bar{g}_{\mathrm{Kir,inward}}=0.15 "*latexify(u"mS/cm^2"),annotationfontsize=25,annotationhalign=:center,annotationfontfamily="Computer Modern")
-title_step_kir_outw  = Plots.plot() 
-plot!(grid=false,legend=:none)
-plot!(foreground_color_border=:white,showaxis=false,foreground_color_axis=:white)
-annotate!(0.5,0.,L"\bar{g}_{\mathrm{Kir,outward}}=0.15 " *latexify(u"mS/cm^2"),annotationfontsize=25,annotationhalign=:center,annotationfontfamily="Computer Modern")
-
-
-plt_outw_I1I2_ = plt_kir_in_out_Ibist(gKir_KirCaLs_outw[1:31],dI_Kir_outw[1:31],dI_Kir_outw[1:31],palette(:Paired_8)[4],L"\bar{g}_{\mathrm{Kir,outward}}")
-plt_inw_I1I2_ = plt_kir_in_out_Ibist(gKir_KirCaLs_inw[1:31],dI_Kir_inw[1:31],dI_Kir_inw[1:31],palette(:Paired_8)[2],L"\bar{g}_{\mathrm{Kir,inward}}")
-plt_IKir_inw_ = plt_Iss_in_out(V_ss,IKir_ss,IKir_inw_ss,palette(:Paired_8)[2],L"I_{\mathrm{Kir,inward},\infty}",(minimum(IKir_ss),maximum(IKM_ss)-20))
-plt_IKir_outw_ = plt_Iss_in_out(V_ss,IKir_ss,IKir_outw_ss,palette(:Paired_8)[4],L"I_{\mathrm{Kir,outward},\infty}",(minimum(IKir_ss),maximum(IKM_ss)-20))
-plt_step_kir_in_ = plt_step_response_cgrad_yaxis(t_desc_step_Kir_inw,V_desc_step_Kir_inw,It_desc_step_Kir_inw,-50:-20:-130,palette_step_kir_inw)
-plt_step_kir_in = Plots.plot(title_step_km_inw,empty_plt,plt_step_kir_in_,layout=@layout[a{0.001h};b{0.003h};c])
-plt_step_kir_out_ = plt_step_response_cgrad_yaxis(t_desc_step_Kir_outw,V_desc_step_Kir_outw,It_desc_step_Kir_outw,-50:-20:-130,palette_step_kir_outw)
-plt_step_kir_out = Plots.plot(title_step_km_outw,empty_plt,plt_step_kir_out_,layout=@layout[a{0.001h};b{0.003h};c])
-
-
-plt_KM_inw_I1I2_ = plt_kir_in_out_Ibist(gKM_KMCaLs_inw[1:31],dI_KM_inw[1:31],dI_KM_inw[1:31],palette(:Paired_10)[10],L"\bar{g}_{\mathrm{KM,inward}}")
-plt_KM_outw_I1I2_ = plt_kir_in_out_Ibist(gKM_KMCaLs_outw[1:31],dI_KM_outw[1:31],dI_KM_outw[1:31],palette(:Paired_8)[6],L"\bar{g}_{\mathrm{KM,outward}}")
-plt_IKM_inw_ = plt_Iss_in_out(V_ss,IKM_ss,IKM_inw_ss,palette(:Paired_10)[10],L"I_{\mathrm{KM,inward},\infty}",(minimum(IKir_ss),maximum(IKM_ss)-20))
-plt_IKM_outw_ = plt_Iss_in_out(V_ss,IKM_ss,IKM_outw_ss,palette(:Paired_8)[6],L"I_{\mathrm{KM,outward},\infty}",(minimum(IKir_ss),maximum(IKM_ss)-20))
-plt_step_km_in_ = plt_step_response_cgrad_yaxis(t_desc_step_KM_inw,V_desc_step_KM_inw,It_desc_step_KM_inw,-50:-20:-130,palette_step_km_inw)
-plt_step_km_in = Plots.plot(title_step_km_inw,empty_plt,plt_step_km_in_,layout=@layout[a{0.001h};b{0.003h};c])
-plt_step_km_out_ = plt_step_response_cgrad_yaxis(t_desc_step_KM_outw,V_desc_step_KM_outw,It_desc_step_KM_outw,-50:-20:-130,palette_step_km_outw)
-plt_step_km_out = Plots.plot(title_step_km_outw,empty_plt,plt_step_km_out_,layout=@layout[a{0.001h};b{0.003h};c])
-
-
-
-plt_inw_I1I2__ = Plots.plot(empty_plt,empty_plt,plt_inw_I1I2_,layout=@layout[a{0.001h};b{0.003h};c])
-plt_outw_I1I2__ = Plots.plot(empty_plt,empty_plt,plt_outw_I1I2_,layout=@layout[a{0.001h};b{0.003h};c])
-plt_IKir_inw = Plots.plot(title_KM_Kir_inw_outw_full_hz_3,empty_plt,plt_IKir_inw_,layout=@layout[a{0.001h};b{0.003h};c])
-plt_IKir_outw = Plots.plot(title_KM_Kir_inw_outw_full_hz_4,empty_plt,plt_IKir_outw_,layout=@layout[a{0.001h};b{0.003h};c])
-plt_step_kir_in = Plots.plot(title_step_kir_inw,empty_plt,plt_step_kir_in_,layout=@layout[a{0.001h};b{0.003h};c])
-plt_step_kir_out = Plots.plot(title_step_km_outw,empty_plt,plt_step_kir_out_,layout=@layout[a{0.001h};b{0.003h};c])
-
-plt_KM_inw_I1I2__ = Plots.plot(empty_plt,empty_plt,plt_KM_inw_I1I2_,layout=@layout[a{0.001h};b{0.003h};c])
-plt_KM_outw_I1I2__ = Plots.plot(empty_plt,empty_plt,plt_KM_outw_I1I2_,layout=@layout[a{0.001h};b{0.003h};c])
-plt_IKM_inw = Plots.plot(title_KM_Kir_inw_outw_full_hz_1,empty_plt,plt_IKM_inw_,layout=@layout[a{0.001h};b{0.003h};c])
-plt_IKM_outw = Plots.plot(title_KM_Kir_inw_outw_full_hz_2,empty_plt,plt_IKM_outw_,layout=@layout[a{0.001h};b{0.003h};c])
-plt_step_km_in = Plots.plot(title_step_km_inw,empty_plt,plt_step_km_in_,layout=@layout[a{0.001h};b{0.003h};c])
-plt_step_km_out = Plots.plot(title_step_km_outw,empty_plt,plt_step_km_out_,layout=@layout[a{0.001h};b{0.003h};c])
-
-
-plt_KM_Kir_inw_outw_full_hz_1 = Plots.plot(plt_IKM_inw,empty_plt,plt_KM_inw_I1I2__,empty_plt,plt_step_km_in,empty_plt,layout=@layout[ a b{0.001w} c d{0.001w} e f{0.003w} ],size=(2300,1100/2))
-plt_KM_Kir_inw_outw_full_hz_2= Plots.plot(plt_IKM_outw,empty_plt,plt_KM_outw_I1I2__,empty_plt,plt_step_km_out,empty_plt,layout=@layout[ a b{0.001w} c d{0.001w} e f{0.003w} ],size=(2300,1100/2))
-plt_KM_Kir_inw_outw_full_hz_3 = Plots.plot(plt_IKir_inw,empty_plt,plt_inw_I1I2__,empty_plt,plt_step_kir_in,empty_plt,layout=@layout[ a b{0.001w} c d{0.001w} e f{0.003w} ],size=(2300,1100/2))
-plt_KM_Kir_inw_outw_full_hz_4 = Plots.plot(plt_IKir_outw,empty_plt,plt_outw_I1I2__,empty_plt,plt_step_kir_out,empty_plt,layout=@layout[ a b{0.001w} c d{0.001w} e f{0.003w} ],size=(2300,1100/2))
-plt_KM_Kir_inw_outw_full_hz = Plots.plot(empty_plt,plt_KM_Kir_inw_outw_full_hz_1,empty_plt,plt_KM_Kir_inw_outw_full_hz_2,empty_plt,plt_KM_Kir_inw_outw_full_hz_3,empty_plt,plt_KM_Kir_inw_outw_full_hz_4,empty_plt,layout=@layout[a{0.003h};b;c{0.001h};d;e{0.001h};f;g{0.001h};h;i{0.001h}],size=(2300,2300))
-plt_KM_Kir_inw_outw_full_hz = Plots.plot(empty_plt,Plots.plot(empty_plt,plt_KM_Kir_inw_outw_full_hz_1,plt_KM_Kir_inw_outw_full_hz_2,plt_KM_Kir_inw_outw_full_hz_3,plt_KM_Kir_inw_outw_full_hz_4,empty_plt,layout=@layout[a{0.003h};b;c;d;e;f{0.001h}],size=(2300,2300)),layout=@layout[a{0.001w} b ])
-
-#savefig(plt_KM_Kir_inw_outw_full_hz,"ChannelUpdate/cluster/figures/pdf/fig-7.pdf")
+    for k=1:2
+        add_trace!(fig, pl2.data[k], row=1, col=2)
+    end 
+relayout!(fig, boxmode="group",
+    yaxis_tickvals = -0.3:0.1:0.3,yaxis_ticktext = ["-30%", "-20%", "-10%", "0%", "10%", "20%", "30%"],
+    yaxis2_tickvals = -0.3:0.1:0.3,yaxis2_ticktext = ["-30%", "-20%", "-10%", "0%", "10%", "20%", "30%"],
+    yaxis_range=[-0.3,0.3],
+    yaxis2_range=[-0.3,0.3],
+    xaxis_tickvals = -0.3:0.1:0.3,xaxis_ticktext = ["-30%", "-20%", "-10%", "0%", "10%", "20%", "30%"],
+    xaxis_title="Change in C",
+    xaxis2_title="Intrinsic variability",
+    yaxis_title="Change in level of bistability",
+    yaxis2_title="Change in level of bistability",
+    paper_bgcolor="rgb(255,255,255)",
+    plot_bgcolor="rgb(255,255,255)",
+    font_color =:black,
+    xaxis_showgrid=false,
+    xaxis2_showgrid=false,
+    yaxis_showgrid=false,
+    yaxis2_showgrid=false,
+    font_family="Computer Modern",
+    width=1200,
+    height=600,
+    font_size=20
+)
+display(fig)
+#PlotlyJS.savefig(fig,"tests/figures/pdf/fig-5.pdf",width=1000,height=500) #from local_postpro_outputs_71_94

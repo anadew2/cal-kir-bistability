@@ -49,7 +49,7 @@ include("data_loader.jl")
 
 #
 
-jld_name = "ChannelUpdate/cluster/fI_curve/data/jld_1/fI_KirCaLs__"
+jld_name = "tests/fI_curve/data/jld_2/fI_KirCaLs__"
 
 f_list_KirCaLs_fI = []
 V_max_c_KirCaLs_fI = []
@@ -60,6 +60,7 @@ I_list_KirCaLs_st = []
 n_batch = 1
 stp_I_list_batch_1=0.01
 stp_I_list_batch_2=0.1
+stp_I=0.5
 
 for i_pCaLs_range_KirCaLs in 1:3
     f_list_ = []
@@ -75,17 +76,28 @@ for i_pCaLs_range_KirCaLs in 1:3
         I_list_st__ = []
         for i_batch in 1:n_batch
             jld_name_i = string(jld_name,"i_pCaLs_$(i_pCaLs_range_KirCaLs)_i_gKir_$(i_gKir_range_KirCaLs)_i_batch_$(i_batch).jld")
-            #println(jld_name_i)
+            println(jld_name_i)
             try
                 p_var_,find_full_bif_= load_full_bif(jld_name_i)
                 push!(f_list__,reverse(find_full_bif_[1]))
                 push!(V_max_c__,reverse(find_full_bif_[2]))
                 push!(V_min_c__,reverse(find_full_bif_[3]))
                 
-                I_list_batch_1 = collect((I1_KirCaLs_fI[i_pCaLs_range_KirCaLs,i_gKir_range_KirCaLs]-0.5):stp_I_list_batch_1:(I1_KirCaLs_fI[i_pCaLs_range_KirCaLs,i_gKir_range_KirCaLs]+0.5))
-                I_list_batch_2 = collect((I_list_batch_1[end]+stp_I_list_batch_2):stp_I_list_batch_2:(I2_KirCaLs_fI[i_pCaLs_range_KirCaLs,i_gKir_range_KirCaLs]+0.5))
-                I_list_batch_ = vcat(I_list_batch_1,I_list_batch_2)
-            
+                if I2_KirCaLs_fI[i_pCaLs_range_KirCaLs,i_gKir_range_KirCaLs]-I1_KirCaLs_fI[i_pCaLs_range_KirCaLs,i_gKir_range_KirCaLs] >stp_I
+                    I_list_batch_1 = collect((I1_KirCaLs_fI[i_pCaLs_range_KirCaLs,i_gKir_range_KirCaLs]-stp_I):stp_I_list_batch_1:(I1_KirCaLs_fI[i_pCaLs_range_KirCaLs,i_gKir_range_KirCaLs]+stp_I))
+                    I_list_batch_2a = collect((I_list_batch_1[end]+stp_I_list_batch_2):stp_I_list_batch_2:(I2_KirCaLs_fI[i_pCaLs_range_KirCaLs,i_gKir_range_KirCaLs]))
+                    I_list_batch_2b = collect((I2_KirCaLs_fI[i_pCaLs_range_KirCaLs,i_gKir_range_KirCaLs]):stp_I_list_batch_2:(maximum([4,I2_KirCaLs_fI[i_pCaLs_range_KirCaLs,i_gKir_range_KirCaLs]+stp_I])))
+                    I_list_batch_ = vcat(I_list_batch_1,I_list_batch_2a,I_list_batch_2b)
+                else
+                    I_list_batch_1 = collect((I1_KirCaLs_fI[i_pCaLs_range_KirCaLs,i_gKir_range_KirCaLs]-stp_I):stp_I_list_batch_1:(I1_KirCaLs_fI[i_pCaLs_range_KirCaLs,i_gKir_range_KirCaLs]+stp_I))
+                    if I1_KirCaLs_fI[i_pCaLs_range_KirCaLs,i_gKir_range_KirCaLs]+stp_I < 4
+                        I_list_batch_2 = collect((I_list_batch_1[end]+stp_I_list_batch_2):stp_I_list_batch_2:(4))
+                    else
+                        I_list_batch_2 = []
+                    end
+                    I_list_batch_ = vcat(I_list_batch_1,I_list_batch_2)
+                end
+
                 ind_batch = Int(ceil(length(I_list_batch_)/n_batch))
                 I_list_batch = I_list_batch_[( (Int(1+ ind_batch*(i_batch-1))) : Int(minimum([ind_batch + ind_batch*(i_batch-1),length(I_list_batch_)]))) ]
                 push!(I_list__,I_list_batch)
@@ -119,7 +131,7 @@ end
 
 ## KM ##
 #
-jld_name = "ChannelUpdate/cluster/fI_curve/data/jld_1/fI_KMCaLs__"
+jld_name = "tests/fI_curve/data/jld_3/fI_KMCaLs__"
 f_list_KMCaLs_fI = []
 V_max_c_KMCaLs_fI = []
 V_min_c_KMCaLs_fI = []
@@ -151,10 +163,21 @@ for i_pCaLs_range_KMCaLs in 1:3
                 push!(V_max_c__,reverse(find_full_bif_[2]))
                 push!(V_min_c__,reverse(find_full_bif_[3]))
                 
-                I_list_batch_1 = collect((I1_KMCaLs_fI[i_pCaLs_range_KMCaLs,i_gKM_range_KMCaLs]-0.5):stp_I_list_batch_1:(I1_KMCaLs_fI[i_pCaLs_range_KMCaLs,i_gKM_range_KMCaLs]+0.5))
-                I_list_batch_2 = collect((I_list_batch_1[end]+stp_I_list_batch_2):stp_I_list_batch_2:(I2_KMCaLs_fI[i_pCaLs_range_KMCaLs,i_gKM_range_KMCaLs]+0.5))
-                I_list_batch_ = vcat(I_list_batch_1,I_list_batch_2)
-            
+                if I2_KMCaLs_fI[i_pCaLs_range_KMCaLs,i_gKM_range_KMCaLs]-I1_KMCaLs_fI[i_pCaLs_range_KMCaLs,i_gKM_range_KMCaLs] >stp_I
+                    I_list_batch_1 = sort(vcat(collect((I1_KMCaLs_fI[i_pCaLs_range_KMCaLs,i_gKM_range_KMCaLs]-stp_I):stp_I_list_batch_1:(I1_KMCaLs_fI[i_pCaLs_range_KMCaLs,i_gKM_range_KMCaLs]+stp_I)),[I1_KMCaLs_fI[i_pCaLs_range_KMCaLs,i_gKM_range_KMCaLs]+1e-4]))
+                    I_list_batch_2a = collect((I_list_batch_1[end]+stp_I_list_batch_2):stp_I_list_batch_2:(I2_KMCaLs_fI[i_pCaLs_range_KMCaLs,i_gKM_range_KMCaLs]))
+                    I_list_batch_2b = collect((I2_KMCaLs_fI[i_pCaLs_range_KMCaLs,i_gKM_range_KMCaLs]):stp_I_list_batch_2:(maximum([4,I2_KMCaLs_fI[i_pCaLs_range_KMCaLs,i_gKM_range_KMCaLs]+stp_I])))
+                    I_list_batch_ = vcat(I_list_batch_1,I_list_batch_2a,I_list_batch_2b)
+                else
+                    I_list_batch_1 = sort(vcat(vcat(collect((I1_KMCaLs_fI[i_pCaLs_range_KMCaLs,i_gKM_range_KMCaLs]-stp_I):stp_I_list_batch_1:(I1_KMCaLs_fI[i_pCaLs_range_KMCaLs,i_gKM_range_KMCaLs]+stp_I))),[I1_KMCaLs_fI[i_pCaLs_range_KMCaLs,i_gKM_range_KMCaLs]+1e-4]))
+                    if I1_KMCaLs_fI[i_pCaLs_range_KMCaLs,i_gKM_range_KMCaLs]+stp_I < 4
+                        I_list_batch_2 = collect((I_list_batch_1[end]+stp_I_list_batch_2):stp_I_list_batch_2:(4))
+                    else
+                        I_list_batch_2 =  collect((I_list_batch_1[end]+stp_I_list_batch_2):stp_I_list_batch_2:I1_KMCaLs_fI[i_pCaLs_range_KMCaLs,i_gKM_range_KMCaLs]+4*stp_I)
+                    end
+                    I_list_batch_ = vcat(I_list_batch_1,I_list_batch_2)
+                end
+                
                 ind_batch = Int(ceil(length(I_list_batch_)/n_batch))
                 I_list_batch = I_list_batch_[( (Int(1+ ind_batch*(i_batch-1))) : Int(minimum([ind_batch + ind_batch*(i_batch-1),length(I_list_batch_)]))) ]
                 push!(I_list__,I_list_batch)

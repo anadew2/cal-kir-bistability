@@ -161,11 +161,11 @@ end
     #scatter!(noisy_sol_cb_t_km_st[1:10:end],zeros(length(noisy_sol_cb_t_km_st[1:10:end])),label="spikes")
 
     plt_sub_s_I_V = plot(plt_sigma,plt_V,layout=(2,1),fontfamily="Computer Modern")
-    #savefig(plt_sub_s_I_V,string("ChannelUpdate/cluster/dI_noise/",jld_name_f,"st.svg"))
-    #save_asc_sim(std_It_noise_km_st,t_noise_km_st,noisy_sol_cb_V_km_st,noisy_sol_cb_t_km_st,string("ChannelUpdate/cluster/dI_noise/",jld_name,"st.jld"))
+    #savefig(plt_sub_s_I_V,string("tests/dI_noise/",jld_name_f,"st.svg"))
+    #save_asc_sim(std_It_noise_km_st,t_noise_km_st,noisy_sol_cb_V_km_st,noisy_sol_cb_t_km_st,string("tests/dI_noise/",jld_name,"st.jld"))
 
     jld_name = "data/jld/asc_KMCaLs_Ihalf_5s_"
-    std_It_noise_km_st,t_noise_km_st,noisy_sol_cb_V_km_st,noisy_sol_cb_t_km_st = load_asc_sim(string("ChannelUpdate/cluster/dI_noise/",jld_name,"st.jld"))
+    std_It_noise_km_st,t_noise_km_st,noisy_sol_cb_V_km_st,noisy_sol_cb_t_km_st = load_asc_sim(string("tests/dI_noise/",jld_name,"st.jld"))
     plt_sigma_ = plot(t_noise_km_st,std_It_noise_km_st,label="std Noise")
     plt_V_ = plot(noisy_sol_cb_t_km_st,noisy_sol_cb_V_km_st,label="V")
     plot(plt_sigma_,plt_V_,layout=(2,1),fontfamily="Computer Modern")
@@ -185,11 +185,11 @@ end
     #scatter!(noisy_sol_cb_t_km_cyc[1:10:end],zeros(length(noisy_sol_cb_t_km_cyc[1:10:end])),label="spikes")
 
     plt_sub_s_I_V = plot(plt_sigma,plt_V,layout=(2,1),fontfamily="Computer Modern") 
-    #savefig(plt_sub_s_I_V,string("ChannelUpdate/cluster/dI_noise/",jld_name_f,"cyc.svg"))
-    #save_asc_sim(std_It_noise_km_cyc,t_noise_km_cyc,noisy_sol_cb_V_km_cyc,noisy_sol_cb_t_km_cyc,string("ChannelUpdate/cluster/dI_noise/",jld_name,"cyc.jld"))
+    #savefig(plt_sub_s_I_V,string("tests/dI_noise/",jld_name_f,"cyc.svg"))
+    #save_asc_sim(std_It_noise_km_cyc,t_noise_km_cyc,noisy_sol_cb_V_km_cyc,noisy_sol_cb_t_km_cyc,string("tests/dI_noise/",jld_name,"cyc.jld"))
 
     jld_name = "data/jld/asc_KMCaLs_Ihalf_5s_"
-    std_It_noise_km_cyc,t_noise_km_cyc,noisy_sol_cb_V_km_cyc,noisy_sol_cb_t_km_cyc = load_asc_sim(string("ChannelUpdate/cluster/dI_noise/",jld_name,"cyc.jld"))
+    std_It_noise_km_cyc,t_noise_km_cyc,noisy_sol_cb_V_km_cyc,noisy_sol_cb_t_km_cyc = load_asc_sim(string("tests/dI_noise/",jld_name,"cyc.jld"))
     
     plt_sigma_ = plot(t_noise_km_cyc,std_It_noise_km_cyc,label="std Noise",title="KM")
     plt_V_ = plot(noisy_sol_cb_t_km_cyc,noisy_sol_cb_V_km_cyc,label="V")

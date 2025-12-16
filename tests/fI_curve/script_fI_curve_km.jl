@@ -4,8 +4,8 @@ using DifferentialEquations,NLsolve
 using LinearAlgebra
 using JLD
 
-include("../../membrane.jl")
-include("../../fixedpoints.jl")
+include("../membrane.jl")
+include("../fixedpoints.jl")
 
 include("data_loader.jl")
 
@@ -56,6 +56,8 @@ heaviside(t)=0*(t<0)+1*(t>=0)
 
 
 function bif_desc_w_pulse(ode_fun,I_list,p,ic_h,I1,tmin)
+    ## Old name: bif_diag_descending_pulse(ode_fun,FP_fun,ode_fun_pulse,I_list,p,ic_h,I1,tmin)
+
     p_var,p_fixed = p
 
 
@@ -198,9 +200,21 @@ end
 
     stp_I_list_batch_1=0.01
     stp_I_list_batch_2=0.1
-    I_list_batch_1 = collect((I1_KMCaLs_fI[i_pCaLs_range_KMCaLs,i_gKM_range_KMCaLs]-0.5):stp_I_list_batch_1:(I1_KMCaLs_fI[i_pCaLs_range_KMCaLs,i_gKM_range_KMCaLs]+0.5))
-    I_list_batch_2 = collect((I_list_batch_1[end]+stp_I_list_batch_2):stp_I_list_batch_2:(I2_KMCaLs_fI[i_pCaLs_range_KMCaLs,i_gKM_range_KMCaLs]+0.5))
-    I_list_batch_ = vcat(I_list_batch_1,I_list_batch_2)
+    stp_I = 0.5
+    if I2_KMCaLs_fI[i_pCaLs_range_KMCaLs,i_gKM_range_KMCaLs]-I1_KMCaLs_fI[i_pCaLs_range_KMCaLs,i_gKM_range_KMCaLs] >stp_I
+        I_list_batch_1 = sort(vcat(collect((I1_KMCaLs_fI[i_pCaLs_range_KMCaLs,i_gKM_range_KMCaLs]-stp_I):stp_I_list_batch_1:(I1_KMCaLs_fI[i_pCaLs_range_KMCaLs,i_gKM_range_KMCaLs]+stp_I)),[I1_KMCaLs_fI[i_pCaLs_range_KMCaLs,i_gKM_range_KMCaLs]+1e-4]))
+        I_list_batch_2a = collect((I_list_batch_1[end]+stp_I_list_batch_2):stp_I_list_batch_2:(I2_KMCaLs_fI[i_pCaLs_range_KMCaLs,i_gKM_range_KMCaLs]))
+        I_list_batch_2b = collect((I2_KMCaLs_fI[i_pCaLs_range_KMCaLs,i_gKM_range_KMCaLs]):stp_I_list_batch_2:(maximum([4,I2_KMCaLs_fI[i_pCaLs_range_KMCaLs,i_gKM_range_KMCaLs]+stp_I])))
+        I_list_batch_ = vcat(I_list_batch_1,I_list_batch_2a,I_list_batch_2b)
+    else
+        I_list_batch_1 = sort(vcat(vcat(collect((I1_KMCaLs_fI[i_pCaLs_range_KMCaLs,i_gKM_range_KMCaLs]-stp_I):stp_I_list_batch_1:(I1_KMCaLs_fI[i_pCaLs_range_KMCaLs,i_gKM_range_KMCaLs]+stp_I))),[I1_KMCaLs_fI[i_pCaLs_range_KMCaLs,i_gKM_range_KMCaLs]+1e-4]))
+        if I1_KMCaLs_fI[i_pCaLs_range_KMCaLs,i_gKM_range_KMCaLs]+stp_I < 4
+            I_list_batch_2 = collect((I_list_batch_1[end]+stp_I_list_batch_2):stp_I_list_batch_2:(4))
+        else
+            I_list_batch_2 =  collect((I_list_batch_1[end]+stp_I_list_batch_2):stp_I_list_batch_2:I1_KMCaLs_fI[i_pCaLs_range_KMCaLs,i_gKM_range_KMCaLs]+4*stp_I)
+        end
+        I_list_batch_ = vcat(I_list_batch_1,I_list_batch_2)
+    end
 
     ind_batch = Int(ceil(length(I_list_batch_)/n_batch))
     I_list_batch = I_list_batch_[( (Int(1+ ind_batch*(i_batch-1))) : Int(minimum([ind_batch + ind_batch*(i_batch-1),length(I_list_batch_)]))) ]

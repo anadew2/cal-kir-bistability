@@ -46,11 +46,11 @@ end
         gleak_var_mat = rand(Uniform(gleak-var_level*gleak,gleak+var_level*gleak),300)
         gNa_var_mat = rand(Uniform(gnabar-var_level*gnabar,gnabar+var_level*gnabar),300)#rand(Uniform(gnabar-0.1*gnabar,gnabar+0.1*gnabar),100)
 
-        inputs_jld_name = "ChannelUpdate/cluster/dI_var_mc/data/input/inputs_of_script_dI_var_mc__var$(Int(var_level*100))_300.jld"
+        inputs_jld_name = "tests/dI_var_mc/data/input/inputs_of_script_dI_var_mc__var$(Int(var_level*100))_300.jld"
         save_inputs_of_script_dI_mc(C_var_mat,gleak_var_mat,gNa_var_mat, inputs_jld_name)
     ==#
 
-    inputs_jld_name = "ChannelUpdate/cluster/dI_var_mc/data/input/inputs_of_script_dI_var_mc__var$(Int(var_level*100))_300.jld"
+    inputs_jld_name = "tests/dI_var_mc/data/input/inputs_of_script_dI_var_mc__var$(Int(var_level*100))_300.jld"
     C_var_mat,gleak_var_mat,gNa_var_mat = load_inputs_of_script_dI_mc(inputs_jld_name)
 
 

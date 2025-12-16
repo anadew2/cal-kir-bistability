@@ -92,9 +92,9 @@ dt = 0.01
     include("data_loader_larger_range_kir.jl")
 
     #sigma_vec = 1:0.1:3
-    #jld_name = "ChannelUpdate/cluster/dI_noise/data/jld/multi_switch_KirCaLs_N500_n25_"
+    #jld_name = "tests/dI_noise/data/jld/multi_switch_KirCaLs_N500_n25_"
     sigma_vec = 1.2:0.1:3.5 #24
-    jld_name = "ChannelUpdate/cluster/dI_noise/data/jld_burst_both_Ihalf2/switch_KirCaLs_N500_n25_"
+    jld_name = "tests/dI_noise/data/jld_burst_both_Ihalf2/switch_KirCaLs_N500_n25_"
 
     n_samples = 25
     nb_switch_std = []
@@ -128,9 +128,9 @@ dt = 0.01
     include("data_loader_larger_range_kir.jl")
 
     #sigma_vec = 1:0.2:3
-    #jld_name = "ChannelUpdate/cluster/dI_noise/data/jld/multi_switch_KirCaLs_cyc_N500_n25_"
+    #jld_name = "tests/dI_noise/data/jld/multi_switch_KirCaLs_cyc_N500_n25_"
     sigma_vec = 2:0.2:7 #26
-    jld_name = "ChannelUpdate/cluster/dI_noise/data/jld_burst_both_Ihalf2/switch_KirCaLs_cyc_N500_n25_"
+    jld_name = "tests/dI_noise/data/jld_burst_both_Ihalf2/switch_KirCaLs_cyc_N500_n25_"
 
     n_samples = 25
     nb_switch_std = []
@@ -162,9 +162,9 @@ dt = 0.01
     include("data_loader_larger_range_km.jl")
 
     sigma_vec = 0.1:0.1:2
-    jld_name = "ChannelUpdate/cluster/dI_noise/data/jld/multi_switch_KMCaLs_N500_n25_"
+    jld_name = "tests/dI_noise/data/jld/multi_switch_KMCaLs_N500_n25_"
     sigma_vec = 0.4:0.05:1.4 #21
-    jld_name = "ChannelUpdate/cluster/dI_noise/data/jld_burst_both_Ihalf2/switch_KMCaLs_N500_n25_"
+    jld_name = "tests/dI_noise/data/jld_burst_both_Ihalf2/switch_KMCaLs_N500_n25_"
 
     n_samples = 25
     nb_switch_std = []
@@ -198,9 +198,9 @@ dt = 0.01
     include("data_loader_larger_range_km.jl")
 
     sigma_vec = 0.1:0.2:3
-    jld_name = "ChannelUpdate/cluster/dI_noise/data/jld/multi_switch_KMCaLs_cyc_N500_n25_"
+    jld_name = "tests/dI_noise/data/jld/multi_switch_KMCaLs_cyc_N500_n25_"
     sigma_vec = 2:0.2:7 #26
-    jld_name = "ChannelUpdate/cluster/dI_noise/data/jld_burst_both_Ihalf2/switch_KMCaLs_cyc_N500_n25_"
+    jld_name = "tests/dI_noise/data/jld_burst_both_Ihalf2/switch_KMCaLs_cyc_N500_n25_"
 
     n_samples = 25
     nb_switch_std = []
@@ -226,16 +226,16 @@ dt = 0.01
     save_prop_switch(sigma_vec,prop_switch_std,I0,string(jld_name,".jld"))
 ==#
 
-jld_name = "ChannelUpdate/cluster/dI_noise/data/jld_burst_both_Ihalf2/switch_KirCaLs_N500_n25_"
+jld_name = "tests/dI_noise/data/jld_burst_both_Ihalf2/switch_KirCaLs_N500_n25_"
 std_vec_Kir,prop_switch_std_Kir,I0_Kir =load_prop_switch(string(jld_name,".jld"))
 
-jld_name = "ChannelUpdate/cluster/dI_noise/data/jld_burst_both_Ihalf2/switch_KirCaLs_cyc_N500_n25_"
+jld_name = "tests/dI_noise/data/jld_burst_both_Ihalf2/switch_KirCaLs_cyc_N500_n25_"
 std_vec_Kir_cyc,prop_switch_std_Kir_cyc,I0_Kir_cyc =load_prop_switch(string(jld_name,".jld"))
 
-jld_name = "ChannelUpdate/cluster/dI_noise/data/jld_burst_both_Ihalf2/switch_KMCaLs_N500_n25_"
+jld_name = "tests/dI_noise/data/jld_burst_both_Ihalf2/switch_KMCaLs_N500_n25_"
 std_vec_KM,prop_switch_std_KM,I0_KM =load_prop_switch(string(jld_name,".jld"))
 
-jld_name = "ChannelUpdate/cluster/dI_noise/data/jld_burst_both_Ihalf2/switch_KMCaLs_cyc_N500_n25_"
+jld_name = "tests/dI_noise/data/jld_burst_both_Ihalf2/switch_KMCaLs_cyc_N500_n25_"
 std_vec_KM_cyc,prop_switch_std_KM_cyc,I0_KM_cyc =load_prop_switch(string(jld_name,".jld"))
 
 Plots.plot(fontfamily="Computer Modern")

@@ -1,11 +1,11 @@
-using TickTock
+
 using Plots,ColorSchemes,LaTeXStrings
 using DifferentialEquations,NLsolve
 using LinearAlgebra
 using JLD
 
-include("../../membrane.jl")
-include("../../fixedpoints.jl")
+include("../membrane.jl")
+include("../fixedpoints.jl")
 
 include("data_loader.jl")
 # Should contain p (p_var and p_fixed)
@@ -59,6 +59,8 @@ heaviside(t)=0*(t<0)+1*(t>=0)
 
 
 function bif_desc_w_pulse(ode_fun,I_list,p,ic_h,I1,tmin)
+    ## Old name: bif_diag_descending_pulse(ode_fun,FP_fun,ode_fun_pulse,I_list,p,ic_h,I1,tmin)
+
     p_var,p_fixed = p
 
 
@@ -70,7 +72,7 @@ function bif_desc_w_pulse(ode_fun,I_list,p,ic_h,I1,tmin)
     rev_I_list = []
     tspan_list = []
 
-    t_pulse = 5000;
+    t_pulse = 1000;
     dt_pulse = 1000;
 
     f_tol = 0.1
@@ -84,7 +86,7 @@ function bif_desc_w_pulse(ode_fun,I_list,p,ic_h,I1,tmin)
     for i in eachindex(I_list)
 
         println("$i on $(length(I_list))")
-        println("I[i] = $(I_list[i])")
+        println("I[i] = $(I_list[end-i+1])")
         push!(rev_I_list,I_list[end-i+1])
 
         tspan = (0.0,tmin)
@@ -105,7 +107,7 @@ function bif_desc_w_pulse(ode_fun,I_list,p,ic_h,I1,tmin)
         V_min = 0 
 
         prob_pulse = ODEProblem(ode_fun,ic_h,tspan./2,[p_var_it,p_fixed])
-        sol_pulse = solve(prob_pulse,abstol=1e-7,reltol=1e-7,dtmax=1)
+        sol_pulse = solve(prob_pulse,abstol=1e-7,reltol=1e-7,dtmax=1,Rodas5P())
         #display(plot(sol_pulse.t,sol_pulse[1,:]))
         f_state=sol_pulse[end]
 
@@ -197,18 +199,30 @@ end
     pCaLs = pCaLs_range_KirCaLs_fI[i_pCaLs_range_KirCaLs]
     gKir = gKir_range_KirCaLs_fI[i_gKir_range_KirCaLs]
 
-    n_batch = 3
+    n_batch = 1
 
     stp_I_list_batch_1=0.01
     stp_I_list_batch_2=0.1
-    I_list_batch_1 = collect((I1_KirCaLs_fI[i_pCaLs_range_KirCaLs,i_gKir_range_KirCaLs]-0.5):stp_I_list_batch_1:(I1_KirCaLs_fI[i_pCaLs_range_KirCaLs,i_gKir_range_KirCaLs]+0.5))
-    I_list_batch_2 = collect((I_list_batch_1[end]+stp_I_list_batch_2):stp_I_list_batch_2:(I2_KirCaLs_fI[i_pCaLs_range_KirCaLs,i_gKir_range_KirCaLs]+0.5))
-    I_list_batch_ = vcat(I_list_batch_1,I_list_batch_2)
+    stp_I = 0.5
+    if I2_KirCaLs_fI[i_pCaLs_range_KirCaLs,i_gKir_range_KirCaLs]-I1_KirCaLs_fI[i_pCaLs_range_KirCaLs,i_gKir_range_KirCaLs] >stp_I
+        I_list_batch_1 = collect((I1_KirCaLs_fI[i_pCaLs_range_KirCaLs,i_gKir_range_KirCaLs]-stp_I):stp_I_list_batch_1:(I1_KirCaLs_fI[i_pCaLs_range_KirCaLs,i_gKir_range_KirCaLs]+stp_I))
+        I_list_batch_2a = collect((I_list_batch_1[end]+stp_I_list_batch_2):stp_I_list_batch_2:(I2_KirCaLs_fI[i_pCaLs_range_KirCaLs,i_gKir_range_KirCaLs]))
+        I_list_batch_2b = collect((I2_KirCaLs_fI[i_pCaLs_range_KirCaLs,i_gKir_range_KirCaLs]):stp_I_list_batch_2:(maximum([4,I2_KirCaLs_fI[i_pCaLs_range_KirCaLs,i_gKir_range_KirCaLs]+stp_I])))
+        I_list_batch_ = vcat(I_list_batch_1,I_list_batch_2a,I_list_batch_2b)
+    else
+        I_list_batch_1 = collect((I1_KirCaLs_fI[i_pCaLs_range_KirCaLs,i_gKir_range_KirCaLs]-stp_I):stp_I_list_batch_1:(I1_KirCaLs_fI[i_pCaLs_range_KirCaLs,i_gKir_range_KirCaLs]+stp_I))
+        if I1_KirCaLs_fI[i_pCaLs_range_KirCaLs,i_gKir_range_KirCaLs]+stp_I < 4
+            I_list_batch_2 = collect((I_list_batch_1[end]+stp_I_list_batch_2):stp_I_list_batch_2:(4))
+        else
+            I_list_batch_2 = []
+        end
+        I_list_batch_ = vcat(I_list_batch_1,I_list_batch_2)
+    end
 
     ind_batch = Int(ceil(length(I_list_batch_)/n_batch))
     I_list_batch = I_list_batch_[( (Int(1+ ind_batch*(i_batch-1))) : Int(minimum([ind_batch + ind_batch*(i_batch-1),length(I_list_batch_)]))) ]
 
-    V_ic = -90.     # [mV]
+    V_ic = -50.     # [mV]
     Ca_ic = 5.0e-5  # [mM]
     ic = [V_ic,mNa(V_ic),hNa(V_ic),mKDR(V_ic),mCaLf(V_ic),hCaLf(V_ic),mCaLs(V_ic),hCaLs(V_ic),mKir(V_ic),mKM(V_ic),Ca_ic]
 

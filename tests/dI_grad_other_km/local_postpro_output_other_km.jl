@@ -73,7 +73,7 @@ function load_dI_mat(jld_name)
 end
 
 
-    jld_name = "ChannelUpdate/cluster/dI_grad_other_km/data/jld/dI_KMCaLs_other_Kv72"
+    jld_name = "tests/dI_grad_other_km/data/jld/dI_KMCaLs_other_Kv72"
     #==
     # This block load the results from the separated jld files and combine them in a single jld 
         dI_KMCaLs = ones(length(pCaLs_range_KMCaLs),length(gKM_range_KMCaLs)).*NaN

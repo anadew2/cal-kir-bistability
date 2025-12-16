@@ -77,7 +77,7 @@ end
 
 
 ### KIR GRAD ###
-    jld_name = "ChannelUpdate/cluster/dI_outw/data/jld/dI_KirCaLs_outw"
+    jld_name = "tests/dI_outw/data/jld/dI_KirCaLs_outw"
 
     #==
     # This block load the results from the separated jld files and combine them in a single jld 
@@ -106,13 +106,13 @@ end
     ==#
 
     #
-        jld_name = "ChannelUpdate/cluster/dI_outw/data/jld/dI_KirCaLs_outw"
+        jld_name = "tests/dI_outw/data/jld/dI_KirCaLs_outw"
         dI_Kir_outw,I1_Kir_outw,I2_Kir_outw,VSN_Kir_outw = load_dI_mat(string(jld_name,".jld"))
     ==#
     
 
 ### KM GRAD ### 
-    jld_name = "ChannelUpdate/cluster/dI_outw/data/jld/dI_KMCaLs_outw"
+    jld_name = "tests/dI_outw/data/jld/dI_KMCaLs_outw"
 
     #==
     # This block load the results from the separated jld files and combine them in a single jld 
@@ -141,7 +141,7 @@ end
     ==#
 
     #
-        jld_name = "ChannelUpdate/cluster/dI_outw/data/jld/dI_KMCaLs_outw"
+        jld_name = "tests/dI_outw/data/jld/dI_KMCaLs_outw"
         dI_KM_outw,I1_KM_outw,I2_KM_outw,VSN_KM_outw = load_dI_mat(string(jld_name,".jld"))
     ==#
 

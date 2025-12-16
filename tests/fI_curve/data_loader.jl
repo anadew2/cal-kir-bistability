@@ -40,9 +40,9 @@ function load_dI_mat(jld_name)
 end
 
  
-jld_name = "ChannelUpdate/cluster/dI_noise/data/input/dI_KirCaLs"
+jld_name = "tests/fI_curve/data/input/dI_KirCaLs"
 dI_KirCaLs,I1_KirCaLs,I2_KirCaLs,VSN_KirCaLs = load_dI_mat(string(jld_name,"_1e-2_1e-5.jld"))
-jld_name = "ChannelUpdate/cluster/dI_noise/data/input/dI_KMCaLs"
+jld_name = "tests/fI_curve/data/input/dI_KMCaLs"
 dI_KMCaLs,I1_KMCaLs,I2_KMCaLs,VSN_KMCaLs = load_dI_mat(string(jld_name,"_1e-2_1e-5.jld"))
  
 

@@ -92,8 +92,8 @@ dt = 0.01
     include("data_loader_larger_range_kir_I1.jl")
 
     sigma_vec =2:0.2:7 #26
-    #jld_name = "ChannelUpdate/cluster/dI_noise/data/jld_I1/multi_switch_KirCaLs_I1_N500_n25_"
-    jld_name = "ChannelUpdate/cluster/dI_noise/data/jld_burst_both_I1/switch_KirCaLs_I1_N500_n25_" #watch out batch 25 _ 11,  26 _ 3 6 and 9 missing 
+    #jld_name = "tests/dI_noise/data/jld_I1/multi_switch_KirCaLs_I1_N500_n25_"
+    jld_name = "tests/dI_noise/data/jld_burst_both_I1/switch_KirCaLs_I1_N500_n25_" #watch out batch 25 _ 11,  26 _ 3 6 and 9 missing 
     n_samples = 25
     nb_switch_std = []
     switch_noise_std = []
@@ -129,8 +129,8 @@ dt = 0.01
     include("data_loader_larger_range_kir_I1.jl")
 
     sigma_vec = 0.25:0.05:1.5 #26
-    #jld_name = "ChannelUpdate/cluster/dI_noise/data/jld_I1/multi_switch_KirCaLs_cyc_I1_N500_n25_"
-    jld_name = "ChannelUpdate/cluster/dI_noise/data/jld_burst_both_I1/switch_KirCaLs_cyc_I1_N500_n25_"
+    #jld_name = "tests/dI_noise/data/jld_I1/multi_switch_KirCaLs_cyc_I1_N500_n25_"
+    jld_name = "tests/dI_noise/data/jld_burst_both_I1/switch_KirCaLs_cyc_I1_N500_n25_"
     n_samples = 25
     nb_switch_std = []
     switch_noise_std = []
@@ -167,8 +167,8 @@ dt = 0.01
     include("data_loader_larger_range_km_I1.jl")
 
     sigma_vec = 1.3:0.05:2.7 #29
-    #jld_name = "ChannelUpdate/cluster/dI_noise/data/jld_I1/multi_switch_KMCaLs_I1_N500_n25_"
-    jld_name = "ChannelUpdate/cluster/dI_noise/data/jld_burst_both_I1/switch_KMCaLs_I1_N500_n25_"
+    #jld_name = "tests/dI_noise/data/jld_I1/multi_switch_KMCaLs_I1_N500_n25_"
+    jld_name = "tests/dI_noise/data/jld_burst_both_I1/switch_KMCaLs_I1_N500_n25_"
     n_samples = 25
     nb_switch_std = []
     switch_noise_std = []
@@ -201,8 +201,8 @@ dt = 0.01
     include("data_loader_larger_range_km_I1.jl")
 
     sigma_vec = 0.025:0.025:0.7 #28 
-    #jld_name = "ChannelUpdate/cluster/dI_noise/data/jld_I1/multi_switch_KMCaLs_cyc_I1_N500_n25_"
-    jld_name = "ChannelUpdate/cluster/dI_noise/data/jld_burst_both_I1/switch_KMCaLs_cyc_I1_N500_n25_"
+    #jld_name = "tests/dI_noise/data/jld_I1/multi_switch_KMCaLs_cyc_I1_N500_n25_"
+    jld_name = "tests/dI_noise/data/jld_burst_both_I1/switch_KMCaLs_cyc_I1_N500_n25_"
     n_samples = 25
     nb_switch_std = []
     switch_noise_std = []
@@ -229,20 +229,20 @@ dt = 0.01
     save_prop_switch(sigma_vec,prop_switch_std,I0,string(jld_name,".jld"))
 ==#
 
-#jld_name = "ChannelUpdate/cluster/dI_noise/data/jld_I1/multi_switch_KirCaLs_I1_N500_n25_"
-jld_name = "ChannelUpdate/cluster/dI_noise/data/jld_burst_both_I1/switch_KirCaLs_I1_N500_n25_" #watch out batch 25 _ 11,  26 _ 3 6 and 9 missing 
+#jld_name = "tests/dI_noise/data/jld_I1/multi_switch_KirCaLs_I1_N500_n25_"
+jld_name = "tests/dI_noise/data/jld_burst_both_I1/switch_KirCaLs_I1_N500_n25_" #watch out batch 25 _ 11,  26 _ 3 6 and 9 missing 
 std_vec_Kir_I1,prop_switch_std_Kir_I1,I0_Kir_I1 =load_prop_switch(string(jld_name,".jld"))
 
-#jld_name = "ChannelUpdate/cluster/dI_noise/data/jld_I1/multi_switch_KirCaLs_cyc_I1_N500_n25_"
-jld_name = "ChannelUpdate/cluster/dI_noise/data/jld_burst_both_I1/switch_KirCaLs_cyc_I1_N500_n25_"
+#jld_name = "tests/dI_noise/data/jld_I1/multi_switch_KirCaLs_cyc_I1_N500_n25_"
+jld_name = "tests/dI_noise/data/jld_burst_both_I1/switch_KirCaLs_cyc_I1_N500_n25_"
 std_vec_Kir_cyc_I1,prop_switch_std_Kir_cyc_I1,I0_Kir_cyc_I1 =load_prop_switch(string(jld_name,".jld"))
 
-#jld_name = "ChannelUpdate/cluster/dI_noise/data/jld_I1/multi_switch_KMCaLs_I1_N500_n25_"
-jld_name = "ChannelUpdate/cluster/dI_noise/data/jld_burst_both_I1/switch_KMCaLs_I1_N500_n25_"
+#jld_name = "tests/dI_noise/data/jld_I1/multi_switch_KMCaLs_I1_N500_n25_"
+jld_name = "tests/dI_noise/data/jld_burst_both_I1/switch_KMCaLs_I1_N500_n25_"
 std_vec_KM_I1,prop_switch_std_KM_I1,I0_KM_I1 =load_prop_switch(string(jld_name,".jld"))
 
-#jld_name = "ChannelUpdate/cluster/dI_noise/data/jld_I1/multi_switch_KMCaLs_cyc_I1_N500_n25_"
-jld_name = "ChannelUpdate/cluster/dI_noise/data/jld_burst_both_I1/switch_KMCaLs_cyc_I1_N500_n25_"
+#jld_name = "tests/dI_noise/data/jld_I1/multi_switch_KMCaLs_cyc_I1_N500_n25_"
+jld_name = "tests/dI_noise/data/jld_burst_both_I1/switch_KMCaLs_cyc_I1_N500_n25_"
 std_vec_KM_cyc_I1,prop_switch_std_KM_cyc_I1,I0_KM_cyc_I1 =load_prop_switch(string(jld_name,".jld"))
 
 Plots.plot(fontfamily="Computer Modern")

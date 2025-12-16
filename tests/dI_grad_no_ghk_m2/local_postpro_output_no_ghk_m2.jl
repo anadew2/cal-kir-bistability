@@ -81,7 +81,7 @@ end
     gKM_range_KMCaLs_no_ghk_m2 = range(0.,stop=1.5,length=16)
 
 
-    jld_name = "ChannelUpdate/cluster/dI_grad_no_ghk_m2/data/jld2/jld2/dI_KirCaLs_larger_range_no_ghk_m2"
+    jld_name = "tests/dI_grad_no_ghk_m2/data/jld2/jld2/dI_KirCaLs_larger_range_no_ghk_m2"
     #==
     # This block load the results from the separated jld files and combine them in a single jld 
         dI_KirCaLs = ones(length(gCaLs_range_KirCaLs_no_ghk_m2),length(gKir_range_KirCaLs_no_ghk_m2)).*NaN
@@ -119,7 +119,7 @@ end
     Plots.plot!(gCaLs_range_KirCaLs_no_ghk_m2,dI_KirCaLs_no_ghk_m2[:,11],label="gKir=1.",marker=:rect,lw=2,markerstrokewidth=0.,ms=3)
 
 
-    jld_name = "ChannelUpdate/cluster/dI_grad_no_ghk_m2/data/jld2/jld2/dI_KMCaLs_larger_range_no_ghk_m2"
+    jld_name = "tests/dI_grad_no_ghk_m2/data/jld2/jld2/dI_KMCaLs_larger_range_no_ghk_m2"
     #==
     # This block load the results from the separated jld files and combine them in a single jld 
         dI_KMCaLs = ones(length(gCaLs_range_KMCaLs),length(gKM_range_KMCaLs)).*NaN

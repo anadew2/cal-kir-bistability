@@ -78,7 +78,7 @@ end
 
 ### KIR GRAD ###
     var_level =0.1
-    jld_name = "ChannelUpdate/cluster/dI_var_mc/data/jld/dI_var$(Int(var_level*100))_mc_KirCaLs"
+    jld_name = "tests/dI_var_mc/data/jld/dI_var$(Int(var_level*100))_mc_KirCaLs"
 
     #==
     # This block load the results from the separated jld files and combine them in a single jld 
@@ -110,19 +110,19 @@ end
 
     #
     var_level =0.1
-        inputs_jld_name = "ChannelUpdate/cluster/dI_var_mc/data/input/inputs_of_script_dI_var_mc__var$(Int(var_level*100))_300.jld"
+        inputs_jld_name = "tests/dI_var_mc/data/input/inputs_of_script_dI_var_mc__var$(Int(var_level*100))_300.jld"
         C_mat_KirCaLs_var10,gleak_mat_KirCaLs_var10,gNa_mat_KirCaLs_var10 = load_inputs_of_script_dI_mc(inputs_jld_name)
-        jld_name = "ChannelUpdate/cluster/dI_var_mc/data/jld/dI_var$(Int(var_level*100))_mc_KirCaLs"
+        jld_name = "tests/dI_var_mc/data/jld/dI_var$(Int(var_level*100))_mc_KirCaLs"
         dI_KirCaLs_var10,I1_KirCaLs_var10,I2_KirCaLs_var10,VSN_KirCaLs_var10 = load_dI_mat(string(jld_name,".jld"))
     var_level =0.2
-        inputs_jld_name = "ChannelUpdate/cluster/dI_var_mc/data/input/inputs_of_script_dI_var_mc__var$(Int(var_level*100))_300.jld"
+        inputs_jld_name = "tests/dI_var_mc/data/input/inputs_of_script_dI_var_mc__var$(Int(var_level*100))_300.jld"
         C_mat_KirCaLs_var20,gleak_mat_KirCaLs_var20,gNa_mat_KirCaLs_var20 = load_inputs_of_script_dI_mc(inputs_jld_name)
-        jld_name = "ChannelUpdate/cluster/dI_var_mc/data/jld/dI_var$(Int(var_level*100))_mc_KirCaLs"
+        jld_name = "tests/dI_var_mc/data/jld/dI_var$(Int(var_level*100))_mc_KirCaLs"
         dI_KirCaLs_var20,I1_KirCaLs_var20,I2_KirCaLs_var20,VSN_KirCaLs_var20 = load_dI_mat(string(jld_name,".jld"))
     var_level =0.3
-        inputs_jld_name = "ChannelUpdate/cluster/dI_var_mc/data/input/inputs_of_script_dI_var_mc__var$(Int(var_level*100))_300.jld"
+        inputs_jld_name = "tests/dI_var_mc/data/input/inputs_of_script_dI_var_mc__var$(Int(var_level*100))_300.jld"
         C_mat_KirCaLs_var30,gleak_mat_KirCaLs_var30,gNa_mat_KirCaLs_var30 = load_inputs_of_script_dI_mc(inputs_jld_name)  
-        jld_name = "ChannelUpdate/cluster/dI_var_mc/data/jld/dI_var$(Int(var_level*100))_mc_KirCaLs"
+        jld_name = "tests/dI_var_mc/data/jld/dI_var$(Int(var_level*100))_mc_KirCaLs"
         dI_KirCaLs_var30,I1_KirCaLs_var30,I2_KirCaLs_var30,VSN_KirCaLs_var30 = load_dI_mat(string(jld_name,".jld"))
     ==#
 
@@ -130,7 +130,7 @@ end
 
 ### KM GRAD ### 
     var_level =0.3
-    jld_name = "ChannelUpdate/cluster/dI_var_mc/data/jld/dI_var$(Int(var_level*100))_mc_KMCaLs"
+    jld_name = "tests/dI_var_mc/data/jld/dI_var$(Int(var_level*100))_mc_KMCaLs"
 
 
     #==
@@ -162,17 +162,17 @@ end
     ==#
 
     var_level =0.1
-        inputs_jld_name = "ChannelUpdate/cluster/dI_var_mc/data/input/inputs_of_script_dI_var_mc__var$(Int(var_level*100))_300.jld"
+        inputs_jld_name = "tests/dI_var_mc/data/input/inputs_of_script_dI_var_mc__var$(Int(var_level*100))_300.jld"
         C_mat_KMCaLs_var10,gleak_mat_KMCaLs_var10,gNa_mat_KMCaLs_var10 = load_inputs_of_script_dI_mc(inputs_jld_name)
-        jld_name = "ChannelUpdate/cluster/dI_var_mc/data/jld/dI_var$(Int(var_level*100))_mc_KMCaLs"
+        jld_name = "tests/dI_var_mc/data/jld/dI_var$(Int(var_level*100))_mc_KMCaLs"
         dI_KMCaLs_var10,I1_KMCaLs_var10,I2_KMCaLs_var10,VSN_KMCaLs_var10 = load_dI_mat(string(jld_name,".jld"))
     var_level =0.2
-        inputs_jld_name = "ChannelUpdate/cluster/dI_var_mc/data/input/inputs_of_script_dI_var_mc__var$(Int(var_level*100))_300.jld"
+        inputs_jld_name = "tests/dI_var_mc/data/input/inputs_of_script_dI_var_mc__var$(Int(var_level*100))_300.jld"
         C_mat_KMCaLs_var20,gleak_mat_KMCaLs_var20,gNa_mat_KMCaLs_var20 = load_inputs_of_script_dI_mc(inputs_jld_name)
-        jld_name = "ChannelUpdate/cluster/dI_var_mc/data/jld/dI_var$(Int(var_level*100))_mc_KMCaLs"
+        jld_name = "tests/dI_var_mc/data/jld/dI_var$(Int(var_level*100))_mc_KMCaLs"
         dI_KMCaLs_var20,I1_KMCaLs_var20,I2_KMCaLs_var20,VSN_KMCaLs_var20 = load_dI_mat(string(jld_name,".jld"))
     var_level =0.3
-        inputs_jld_name = "ChannelUpdate/cluster/dI_var_mc/data/input/inputs_of_script_dI_var_mc__var$(Int(var_level*100))_300.jld"
+        inputs_jld_name = "tests/dI_var_mc/data/input/inputs_of_script_dI_var_mc__var$(Int(var_level*100))_300.jld"
         C_mat_KMCaLs_var30,gleak_mat_KMCaLs_var30,gNa_mat_KMCaLs_var30 = load_inputs_of_script_dI_mc(inputs_jld_name)  
-        jld_name = "ChannelUpdate/cluster/dI_var_mc/data/jld/dI_var$(Int(var_level*100))_mc_KMCaLs"
+        jld_name = "tests/dI_var_mc/data/jld/dI_var$(Int(var_level*100))_mc_KMCaLs"
         dI_KMCaLs_var30,I1_KMCaLs_var30,I2_KMCaLs_var30,VSN_KMCaLs_var30 = load_dI_mat(string(jld_name,".jld"))

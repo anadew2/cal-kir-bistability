@@ -1,128 +1,309 @@
 using Plots,ColorSchemes,LaTeXStrings
 using LaTeXStrings
 using Unitful, Latexify, UnitfulLatexify
+using Statistics
 
-include("../dI_noise/local_postpro_outputs.jl")
+include("../dI_grad_altgt/local_postpro_output.jl")
+include("../fI_curve_altgt/bif.jl")
 
-function plt_V_It_noisy_inc_sigma(t_,V,t_It_,It,t_sigma_,sigma,I1bist,I2bist,mean_It,fill_c,yticks_,sigma_ticks_)
-    dt_guide = 1
-    dV_guide = 50
-    dI_guide = 10^(-1) #std
+function plt_fI_VI(I_list_fI,f_list_fI,I_stable_VI,V_stable_VI,I1,I2,V_I1,V_I2,xlims_,color)
+    fI_fill_ = collect(1:length(I_list_fI))[I_list_fI .>=I1]
+    fI_fill = fI_fill_[I_list_fI[fI_fill_] .<= I2]
+    fontsize_= 25
 
-    fontsize_=25
-    write_an = true
-    lc_V = RGB(0.2,0.2,0.2)
-    lc_I = :black
-    lw_V =1
+    plt_fI = plot(fontfamily="Computer Modern", xlabel=" ",ylabel=L"f \ \ "*L"[" *latexify(u"Hz") *L"]",grid=:none,legend=:outertopright,legendfontsize=fontsize_,xlabelfontsize=fontsize_,ylabelfontsize=fontsize_,tickfontsize=fontsize_,size=(800,400))
+    if I1 != I2
+        plot!(xticks=([xlims_[1],I1,I2,xlims_[2]],[xlims_[1],L"I_1",L"I_2",xlims_[2]]))
+        plot!(I1.*ones(2),[-5,250],lc=:grey25,linestyle=:dot,label=:none,lw=5,linealpha=0.2)
+        plot!(I2.*ones(2),[-5,250],lc=:grey25,linestyle=:dot,label=:none,lw=5,linealpha=0.2)
+        annotate!(I1,250+15,L"I_1",annotationfontsize=fontsize_,annotationhalign=:center,annotationfontfamily="Computer Modern")
+        annotate!(I2,250+15,L"I_2",annotationfontsize=fontsize_,annotationhalign=:center,annotationfontfamily="Computer Modern")
 
-    t = t_ ./1000
-    t_It = t_It_ ./1000
-    t_sigma = t_sigma_ ./1000
-
-
-    plt_V = Plots.plot()
-    plot!(t,V,lc=lc_V,lw=lw_V)     
-    #plot lower guide
-    plot!([(maximum(t))-dt_guide , maximum(t)],(yticks_[1]) .*ones(2),lc=:black,lw=2)
-    if write_an == 1
-        annotate!(((maximum(t))-dt_guide + maximum(t))/2,(yticks_[1])*1.13, latexify(Int(dt_guide) * u"s"),annotationfontsize=fontsize_)
+    else
+        plot!(xticks=([xlims_[1],I1,xlims_[2]],[xlims_[1],L"I_1=I_2",xlims_[2]]))
     end
-    #axis attributes 
-    plot!(xlims=(-maximum(t) *0.03,maximum(t) *1.15) )
-    plot!(ylims=(minimum(yticks_),maximum(yticks_)))
-    plot!(yticks = yticks_,ylabel=L"V\,~"  *L"(" *latexify(u"mV") *L")",ylabelfontsize=fontsize_)
-    plot!(grid=false,legend=:none,tickfontfamily="Computer Modern",tickfontsize=fontsize_)
-    plot!(foreground_color_border=:black,showaxis=:y,foreground_color_axis=:black)
-#
-    plt_sigma=Plots.plot()
-    plot!(t_sigma,sigma,lc=lc_V,lw=2)
-    plot!(xlims=(-maximum(t) *0.03,maximum(t) *1.15) )
-    plot!(ylabel=L"\sigma\,~"  *L"(" *latexify(u"mV") *L")",ylabelfontsize=fontsize_)
-    plot!(grid=false,legend=:none,fontfamily="Computer Modern",tickfontsize=fontsize_,legendfontsize=fontsize_)
-    plot!(foreground_color_border=:black,showaxis=:y,foreground_color_axis=:black)
+    plot!([I1,I2],220 .*ones(2),arrow=true,color=:black,linewidth=0.5,label=:none)
+    plot!([I2,I1],220 .*ones(2),arrow=true,color=:black,linewidth=0.5,label=:none,ylims=(-10,250))
+    annotate!(mean([I2,I1]),250,L"\Delta I",annotationfontsize=fontsize_,annotationhalign=:center,annotationfontfamily="Computer Modern")
+    plot!(yticks=[0,250])
+    plot!(plt_fI,I_list_fI,f_list_fI,lc=color,lw=2,label="Spiking")
+    plot!(I_stable_VI ,zeros(size(I_stable_VI)),ls=:dash,lw=2,lc=color,label="Resting")
+    plot!(I_list_fI[fI_fill],f_list_fI[fI_fill],fillrange=zeros(size(fI_fill)),c=color,fillalpha=0.15,lw=0,label="Bistable")
 
-    #==
-    l = @layout[
-        a{1.0*w,0.3*h}
-        b{1.0*w,0.3*h}
-        b{1.0*w,0.4*h}
-    ]
-    plt = Plots.plot(plt_sigma,plt_I,plt_V,layout=l,size=(1000,800))==#
+    VI_fill_ = collect(1:length(I_stable_VI))[I_stable_VI .>=I1]
+    VI_fill = VI_fill_[I_stable_VI[VI_fill_] .<= I2]  
 
-    l = @layout[
-        a{1.0*w,0.4*h}
-        b{1.0*w,0.6*h}
-    ]
-    plt = Plots.plot(plt_sigma,plt_V,layout=l,size=(1000,800))
-    ==#
+    plt_VI = plot(fontfamily="Computer Modern", xlabel=L"I \ \ "*L"[" *latexify(u"µA /cm^2") *L"]",ylabel=L"\overline{V} \ \ "*L"[" *latexify(u"mV") *L"]" ,grid=:none,legend=:outertopright,legendfontsize=fontsize_,xlabelfontsize=fontsize_,ylabelfontsize=fontsize_,tickfontsize=fontsize_,ylims=(-90,-50),yticks=-90:20:-50,xticks=([xlims_[1],I1,I2,xlims_[2]],[xlims_[1],L"I_1",L"I_2",xlims_[2]]),size=(800,400))
+        #Display I1 & I2 lines
+        plot!(I1.*ones(2),[-150,-50],lc=:grey25,linestyle=:dot,label=:none,lw=5,linealpha=0.2)
+        plot!(I2.*ones(2),[-150,-50],lc=:grey25,linestyle=:dot,label=:none,lw=5,linealpha=0.2)
+        annotate!(I1,-50+6,L"I_1",annotationfontsize=fontsize_,annotationhalign=:center,annotationfontfamily="Computer Modern")
+        annotate!(I2,-50+6,L"I_2",annotationfontsize=fontsize_,annotationhalign=:center,annotationfontfamily="Computer Modern")
+    plot!(I_stable_VI ,V_stable_VI,ls=:dash,lw=2,lc=color,label="Resting")
+    plot!(I_stable_VI[VI_fill],V_stable_VI[VI_fill],fillrange=ones(size(VI_fill)).*-55,c=color,fillalpha=0.15,lw=0,label="Bistable")
+    scatter!(I1.*ones(2), V_I1.*ones(2),mc=color,markerstrokewidth=0,label=:none)
+    scatter!(I2.*ones(2), V_I2.*ones(2),mc=color,markerstrokewidth=0,label=:none)    
+    plt=plot(plt_fI,plt_VI,layout=(2,1),xlims=xlims_)
+    return plt
+end
+function plt_list_fI_VI(I_list_fI_,f_list_fI_,I_stable_VI_,V_stable_VI_,I1_,I2_,V_I1_,V_I2_,xlims__,color_)
+
+    fontsize_= 25
+    plt_fI = plot(fontfamily="Computer Modern", xlabel=" ",ylabel=L"f \ \ "*L"[" *latexify(u"Hz") *L"]",grid=:none,legend=:outertopright,legendfontsize=fontsize_,xlabelfontsize=fontsize_,ylabelfontsize=fontsize_,tickfontsize=fontsize_,ylims=(-5,250),yticks=0:50:200,size=(800,400))
+    plt_VI = plot(fontfamily="Computer Modern", xlabel=L"I \ \ "*L"[" *latexify(u"µA /cm^2") *L"]",ylabel=L"\overline{V} \ \ "*L"[" *latexify(u"mV") *L"]" ,grid=:none,legend=:outertopright,legendfontsize=fontsize_,xlabelfontsize=fontsize_,ylabelfontsize=fontsize_,tickfontsize=fontsize_,ylims=(-90,-50),yticks=-90:10:-50,size=(800,400))
+
+    for i=1:length(I_list_fI_)
+        I_list_fI = I_list_fI_[i]
+        f_list_fI = f_list_fI_[i]
+        I_stable_VI = I_stable_VI_[i]
+        V_stable_VI = V_stable_VI_[i]
+        I1 = I1_[i]
+        I2 = I2_[i]
+        V_I1 = V_I1_[i]
+        V_I2 = V_I2_[i]
+        xlims_ = xlims__[i]
+        color = color_[i]
+
+        fI_fill_ = collect(1:length(I_list_fI))[I_list_fI .>=I1]
+        fI_fill = fI_fill_[I_list_fI[fI_fill_] .<= I2]
+
+        if i==1
+            plot!(plt_fI,(xlims_[1]-100) *ones(2),-100 .*ones(2),lc=:grey,lw=1,label="Spiking")
+            plot!(plt_fI,(xlims_[1]-100) *ones(2) ,-100 .*ones(2),ls=:dash,lw=1,lc=:grey,label="Resting")
+            plot!(plt_fI,(xlims_[1]-100) *ones(2) ,-100 .*ones(2),fillrange=-100 .*ones(size(fI_fill)),c=:grey,fillalpha=0.15,lw=0,label="Bistable")
+        end
+        plot!(plt_fI,I_list_fI,f_list_fI,lc=color,lw=2,label=:none) #"Spiking"
+        plot!(plt_fI,I_stable_VI ,zeros(size(I_stable_VI)),ls=:dash,lw=2,lc=color,label=:none) #"Resting"
+        plot!(plt_fI,I_list_fI[fI_fill],f_list_fI[fI_fill],fillrange=zeros(size(fI_fill)),c=color,fillalpha=0.15,lw=0,label=:none) #"Bistable"
+        #plot!(plt_fI,[I1,I2],220 .*ones(2),arrow=true,color=:black,linewidth=0.5,label=:none)
+        #plot!(plt_fI,[I2,I1],220 .*ones(2),arrow=true,color=:black,linewidth=0.5,label=:none,ylims=(-10,250))
+        #annotate!(plt_fI,mean([I2,I1]),250,L"\Delta I",annotationfontsize=fontsize_,annotationhalign=:center,annotationfontfamily="Computer Modern")
+        #plot!(plt_fI,yticks=[0,250])
+
+        VI_fill_ = collect(1:length(I_stable_VI))[I_stable_VI .>=I1]
+        VI_fill = VI_fill_[I_stable_VI[VI_fill_] .<= I2]  
+
+        if i==1
+            plot!(plt_VI,(xlims_[1]-100) *ones(2) ,-1000 .*ones(2),ls=:dash,lw=1,lc=:grey,label="Resting")
+            plot!(plt_VI,(xlims_[1]-100) *ones(2) ,-1000 .*ones(2),fillrange=-1000 .*ones(size(fI_fill)),c=:grey,fillalpha=0.15,lw=0,label="Bistable")
+        end
+        plot!(plt_VI,I_stable_VI ,V_stable_VI,ls=:dash,lw=2,lc=color,label=:none) #"Resting"
+        plot!(plt_VI,I_stable_VI[VI_fill],V_stable_VI[VI_fill],fillrange=ones(size(VI_fill)).*-50,c=color,fillalpha=0.15,lw=0,label=:none) #"Bistable"
+        scatter!(plt_VI,I1.*ones(2), V_I1.*ones(2),mc=color,markerstrokewidth=0,label=:none)
+        scatter!(plt_VI,I2.*ones(2), V_I2.*ones(2),mc=color,markerstrokewidth=0,label=:none)  
+
+    end
+    plt=plot(plt_fI,plt_VI,layout=(2,1),xlims=xlims__[end])
     return plt
 end
 
-include("../dI_noise/asc_std_kir_Ihalf.jl")
-plt_noisy_Kir_asc_st = plt_V_It_noisy_inc_sigma(noisy_sol_cb_t_kir_st,noisy_sol_cb_V_kir_st,NaN,NaN,t_noise_kir_st,std_It_noise_kir_st.*sqrt(0.01),I1bist,I2bist,I0,:mediumpurple3,-100:50:50,0:1:7)
-plt_noisy_Kir_asc_cyc = plt_V_It_noisy_inc_sigma(noisy_sol_cb_t_kir_cyc,noisy_sol_cb_V_kir_cyc,NaN,NaN,t_noise_kir_cyc,std_It_noise_kir_cyc.*sqrt(0.01),I1bist,I2bist,I0,:mediumpurple3,-100:50:50,0:1:7)
-include("../dI_noise/asc_std_km_Ihalf.jl")
-plt_noisy_KM_asc_st = plt_V_It_noisy_inc_sigma(noisy_sol_cb_t_km_st,noisy_sol_cb_V_km_st,NaN,NaN,t_noise_km_st,std_It_noise_km_st.*sqrt(0.01),I1bist,I2bist,I0,:mediumpurple3,-100:50:50,0:10:70)
-plt_noisy_KM_asc_cyc = plt_V_It_noisy_inc_sigma(noisy_sol_cb_t_km_cyc,noisy_sol_cb_V_km_cyc,NaN,NaN,t_noise_km_cyc,std_It_noise_km_cyc.*sqrt(0.01),I1bist,I2bist,I0,:mediumpurple3,-100:50:50,0:10:70)
+function plt_dI_grad(dI_grad_mat,gx,gy,clims_dI,xname,yname)
+    palette =  :vik#cgrad(:diverging_rainbow_bgymr_45_85_c67_n256,rev=true)
+    fontsize_ =25
+
+    plt_dI = Plots.heatmap(gx,gy,dI_grad_mat,fill=true,levels=100,lw=0,c=palette,clims=clims_dI)
+    #plot!(plt_dI,gx_TC,gy_TC,label=:none,lc=:black,lw=2)
+    plot!(colorbar=true,legend=:none)
+    yaxis!((minimum(gy),maximum(gy)),yticks=[minimum(gy),maximum(gy)])
+    xaxis!((minimum(gx),maximum(gx)),xticks=[minimum(gx),maximum(gx)])
+    plot!(ylabel=yname,ylabelfontsize=fontsize_)
+    plot!(xlabel=xname,xlabelfontsize=fontsize_)
+    plot!(fontfamily="Computer Modern",tickfontsize=fontsize_)
+    plot!(xlabelfontsize=fontsize_,ylabelfontsize=fontsize_,tickfontsize=fontsize_)
+    
+    plt_annotation = Plots.plot()
+    annotate!(0.5,0.52, latexstring("     ",L"\Delta I"),annotationfontsize=fontsize_)
+    plot!(yticks =:none)
+    plot!(xticks =:none)
+    plot!(grid=false,legend=:none)
+    plot!(foreground_color_border=:white,showaxis=false,foreground_color_axis=:white)
+
+    plt = Plots.plot(plt_dI,plt_annotation,layout=@layout[a b{0.08w}])
+    return plt
+end
+function plt_dI_grad_(dI_grad_mat,gx,gy,clims_dI,xname,yname)
+    palette =  :vik#cgrad(:diverging_rainbow_bgymr_45_85_c67_n256,rev=true)
+    fontsize_ =25
+
+    plt_dI = Plots.heatmap(gx,gy,dI_grad_mat,fill=true,levels=100,lw=0,c=palette,clims=clims_dI)
+    #plot!(plt_dI,gx_TC,gy_TC,label=:none,lc=:black,lw=2)
+    plot!(colorbar=true,legend=:none)
+    yaxis!((minimum(gy),maximum(gy)),yticks=[minimum(gy),maximum(gy)])
+    xaxis!((minimum(gx),maximum(gx)),xticks=[minimum(gx),maximum(gx)])
+    plot!(ylabel=yname,ylabelfontsize=fontsize_)
+    plot!(xlabel=xname,xlabelfontsize=fontsize_)
+    plot!(fontfamily="Computer Modern",tickfontsize=fontsize_)
+    plot!(xlabelfontsize=fontsize_,ylabelfontsize=fontsize_,tickfontsize=fontsize_)
+    
+    plt_annotation = Plots.plot()
+    annotate!(0.5,0.57, latexstring("     ",L"\Delta I-\Delta I_0"),annotationfontsize=fontsize_)
+    annotate!(0.5,0.45, latexstring("     ",L"[",latexify(u"µA/cm^2"),L"]"),annotationfontsize=fontsize_)
+    plot!(yticks =:none)
+    plot!(xticks =:none)
+    plot!(grid=false,legend=:none)
+    plot!(foreground_color_border=:white,showaxis=false,foreground_color_axis=:white)
+
+    plt = Plots.plot(plt_dI,plt_annotation,layout=@layout[a b{0.08w}])
+    return plt
+end
+function plt_Veq_grad(Veq_grad_mat,gx,gy,clims_V,xname,yname)
+    palette = cgrad(:diverging_rainbow_bgymr_45_85_c67_n256,rev=true) #cgrad(:BuPu,rev=true)
+    fontsize_ = 25
+
+    plt_dI = Plots.heatmap(gx,gy,Veq_grad_mat,fill=true,levels=100,lw=0,c=palette,clims=clims_V)
+    #plot!(plt_dI,gx_TC,gy_TC,label=:none,lc=:black,lw=2)
+    plot!(colorbar=true,legend=:none)
+    yaxis!((minimum(gy),maximum(gy)),yticks=[minimum(gy),maximum(gy)])
+    xaxis!((minimum(gx),maximum(gx)),xticks=[minimum(gx),maximum(gx)])
+    plot!(ylabel=yname,ylabelfontsize=fontsize_)
+    plot!(xlabel=xname,xlabelfontsize=fontsize_)
+    plot!(tickfont = "Computer Modern",tickfontsize=fontsize_)
+    plot!(legend=:none)
+    
+    plt_annotation = Plots.plot()
+    annotate!(0.5,0.57, latexstring("     ",L"\overline{V}(I_1)"),annotationfontsize=fontsize_)
+    annotate!(0.5,0.45, latexstring("     ",L"[",latexify(u"mV"),L"]"),annotationfontsize=fontsize_)
+    plot!(yticks =:none)
+    plot!(xticks =:none)
+    plot!(grid=false,legend=:none)
+    plot!(foreground_color_border=:white,showaxis=false,foreground_color_axis=:white)
+
+    plt = Plots.plot(plt_dI,plt_annotation,layout=@layout[a b{0.08w}])
+    return plt
+end
 
 
 empty_plt = Plots.plot() 
 plot!(grid=false,legend=:none)
 plot!(foreground_color_border=:white,showaxis=false,foreground_color_axis=:white)
 
-#Horizontal version
-plt_noisy_KM_full_inc = Plots.plot(plt_noisy_KM_asc_st,empty_plt,plt_noisy_KM_asc_cyc,layout=@layout[a b{0.05w} c])
-plt_noisy_Kir_full_inc = Plots.plot(plt_noisy_Kir_asc_st,empty_plt,plt_noisy_Kir_asc_cyc,layout=@layout[a b{0.05w} c])
-
-
-title_noisy_KM = Plots.plot() 
+title_kir_km_2_AB = Plots.plot() 
 plot!(grid=false,legend=:none)
 plot!(foreground_color_border=:white,showaxis=false,foreground_color_axis=:white)
-annotate!(-0.05,0.5,L"\textbf{A}",annotationfontsize=35,annotationhalign=:left,annotationfontfamily="Computer Modern")
-annotate!(0.465,0.5,L"\textbf{B}",annotationfontsize=35,annotationhalign=:left,annotationfontfamily="Computer Modern")
-title_prop_noisy_KM = Plots.plot() 
+annotate!(0.,0.5,L"\textbf{A}",annotationfontsize=35,annotationhalign=:left,annotationfontfamily="Computer Modern")
+annotate!(0.5,0.5,L"\textbf{B}",annotationfontsize=35,annotationhalign=:left,annotationfontfamily="Computer Modern")
+title_kir_km_2_C = Plots.plot() 
 plot!(grid=false,legend=:none)
 plot!(foreground_color_border=:white,showaxis=false,foreground_color_axis=:white)
-annotate!(-0.375,0.5,L"\textbf{C}",annotationfontsize=35,annotationhalign=:left,annotationfontfamily="Computer Modern")
-title_noisy_Kir = Plots.plot() 
+annotate!(0.,0.5,L"\textbf{C}",annotationfontsize=35,annotationhalign=:left,annotationfontfamily="Computer Modern")
+title_kir_km_2_D = Plots.plot() 
 plot!(grid=false,legend=:none)
 plot!(foreground_color_border=:white,showaxis=false,foreground_color_axis=:white)
-annotate!(-0.05,0.5,L"\textbf{D}",annotationfontsize=35,annotationhalign=:left,annotationfontfamily="Computer Modern")
-annotate!(0.465,0.5,L"\textbf{E}",annotationfontsize=35,annotationhalign=:left,annotationfontfamily="Computer Modern")
-title_prop_noisy_Kir = Plots.plot() 
-plot!(grid=false,legend=:none)
-plot!(foreground_color_border=:white,showaxis=false,foreground_color_axis=:white)
-annotate!(-0.3755,0.5,L"\textbf{F}",annotationfontsize=35,annotationhalign=:left,annotationfontfamily="Computer Modern")
-
-title_lines_KM_Kir = Plots.plot() 
-plot!(grid=false,legend=:none)
-plot!(foreground_color_border=:white,showaxis=false,foreground_color_axis=:white)
-#plot!(0.15*ones(2),0.78 .+ [-0.2,0.2],label=:none,lc=:mediumpurple4)
-#plot!(0.15*ones(2),0.2 .+ [-0.2,0.2],label=:none,lc=RGB(0.95,0.62,0.75))
-annotate!(0.25,0.78,L"\mathrm{KM}",annotationfontsize=45,annotationhalign=:center,annotationfontfamily="Computer Modern",annotationcolor=:mediumpurple3)
-annotate!(0.25,0.18,L"\mathrm{Kir}",annotationfontsize=45,annotationhalign=:center,annotationfontfamily="Computer Modern",annotationcolor=:palevioletred2)
+annotate!(-0.25,0.5,L"\textbf{D}",annotationfontsize=35,annotationhalign=:left,annotationfontfamily="Computer Modern")
 
 
-fontsize_=25
-plt_switch_Kir = Plots.plot(fontfamily="Computer Modern",xlims=(-0.1,7.1))
-plot!(std_vec_Kir,prop_switch_std_Kir,lc=:palevioletred2,lw=2,marker=:circle,mc=:palevioletred2,ms=5,markerstrokewidth=0,label="From resting")
-plot!(std_vec_Kir_cyc,prop_switch_std_Kir_cyc,lc=:palevioletred2,lw=2,marker=:circle,mc=:palevioletred2,ms=5,markerstrokewidth=0,label="From spiking",ls=:dash)
-plot!(xlabel=L"\sigma\,~"  *L"(" *latexify(u"mV") *L")",ylabel="Proportion of state transition",ylabelfontsize=fontsize_,xlabelfontsize=fontsize_,yticks =0:1,tickfontsize=fontsize_,legendfontsize=fontsize_,legend=:bottomright)
-
-plt_switch_KM = Plots.plot(fontfamily="Computer Modern",xlims=(-0.1,7.1))
-plot!(std_vec_KM,prop_switch_std_KM,lc=:mediumpurple3,lw=2,marker=:circle,mc=:mediumpurple3,ms=5,markerstrokewidth=0,label="From resting")
-plot!(std_vec_KM_cyc,prop_switch_std_KM_cyc,lc=:mediumpurple3,lw=2,marker=:circle,mc=:mediumpurple3,ms=5,markerstrokewidth=0,label="From spiking",ls=:dash)
-plot!(xlabel=L"\sigma\,~"  *L"(" *latexify(u"mV") *L")",ylabel="Proportion of state transition",ylabelfontsize=fontsize_,legend=:topright,xlabelfontsize=fontsize_,yticks =0:1,tickfontsize=fontsize_,legendfontsize=fontsize_)
+clim_ = [0.1,0.2,0.4,0.625,0.75]
 
 
+i_pCaLs = 5
+#plt_dI_KirKMCaLs_5 = plt_dI_grad(dI_KirKMCaLs[i_pCaLs,:,:],gKM_range_KirKMCaLs,gKir_range_KirKMCaLs,(0,2.75),L"\bar{g}_{\mathrm{KM}}",L"\bar{g}_{\mathrm{Kir}}")
+plt_dI_KirKMCaLs_5 = plt_dI_grad_(dI_KirKMCaLs[i_pCaLs,:,:].-dI_KirKMCaLs[i_pCaLs,1,1],gKM_range_KirKMCaLs,gKir_range_KirKMCaLs,(-1,+1).*clim_[5] ,L"\bar{g}_{\mathrm{KM}} \ \ "*L"[" *latexify(u"mS /cm^2") *L"]",L"\bar{g}_{\mathrm{Kir}} \ \ "*L"[" *latexify(u"mS /cm^2") *L"]")
+#plt_dI_KirKMCaLs_5 = plt_dI_grad(dI_KirKMCaLs[i_pCaLs,:,:],gKM_range_KirKMCaLs,gKir_range_KirKMCaLs,(-1,+1).*clim_[i_pCaLs] .+dI_KirKMCaLs[i_pCaLs,1,1],L"\bar{g}_{\mathrm{KM}}",L"\bar{g}_{\mathrm{Kir}}")
+plot!(plt_dI_KirKMCaLs_5[1],title=L"\bar{p}_{CaLs} = "*"$(round(pCaLs_range_KirKMCaLs[i_pCaLs]*1e7)/10^7)"*latexify(u"cm/s"),titlefontsize=25)
+scatter!(plt_dI_KirKMCaLs_5,[gKM_range_KirKMCaLs[3]],[gKir_range_KirKMCaLs[29]],markershape=:circle,markersize=18,mc=:palevioletred2,markerstrokewidth=0.2,markerstrokecolor=:white)
+scatter!(plt_dI_KirKMCaLs_5,[gKM_range_KirKMCaLs[29]],[gKir_range_KirKMCaLs[3]],markershape=:circle,markersize=18,mc=:mediumpurple1,markerstrokewidth=0.2,markerstrokecolor=:white)
+scatter!(plt_dI_KirKMCaLs_5,[gKM_range_KirKMCaLs[29]],[gKir_range_KirKMCaLs[29]],markershape=:circle,markersize=18,mc=:goldenrod2,markerstrokewidth=0.2,markerstrokecolor=:white)
 
-plt_all_noisy_inc = Plots.plot(title_noisy_KM,plt_noisy_KM_full_inc,empty_plt,title_noisy_Kir,plt_noisy_Kir_full_inc,layout=@layout[a{0.003h}; b; c{0.05h}; d{0.003h} ; e],tickfontsize=22)
-plt_switch = Plots.plot(title_prop_noisy_KM,plt_switch_KM,empty_plt,title_prop_noisy_Kir,plt_switch_Kir,layout=@layout[a{0.003h}; b; c{0.003h} ; e{0.003h}; f],tickfontsize=22)
-plot!(plt_switch[2],xlabel=L"\sigma\,~"  *L"(" *latexify(u"mV") *L")",ylabel="Proportion of state transition",ylabelfontsize=28,legend=:topright,xlabelfontsize=28)
-plot!(plt_switch[5],xlabel=L"\sigma\,~"  *L"(" *latexify(u"mV") *L")",ylabel="Proportion of state transition",ylabelfontsize=28,xlabelfontsize=28)
 
-plt_noisy_inc = Plots.plot(plt_all_noisy_inc,empty_plt,plt_switch,layout=@layout[a{0.7w} b{0.05w} c],fontfamily="Computer Modern",size=(2300,1900))
-plt_noisy_inc_ = Plots.plot(empty_plt,plt_noisy_inc,empty_plt,layout=@layout[a{0.001w} b c{0.001w}])
-plt_f6_v8 = Plots.plot(empty_plt,plt_noisy_inc_,empty_plt,layout=@layout[a{0.003h} ; b ; c{0.001h}],fontfamily="Computer Modern")
+plt_V_I1_KirKMCaLs_5 = plt_Veq_grad(V_I1_KirKMCaLs[i_pCaLs,:,:],gKM_range_KirKMCaLs,gKir_range_KirKMCaLs,(-125,-55),L"\bar{g}_{\mathrm{KM}} \ \ "*L"[" *latexify(u"mS /cm^2") *L"]",L"\bar{g}_{\mathrm{Kir}} \ \ "*L"[" *latexify(u"mS /cm^2") *L"]")
+plot!(plt_V_I1_KirKMCaLs_5[1],title=L"\bar{p}_{CaLs} = "*"$(round(pCaLs_range_KirKMCaLs[i_pCaLs]*1e7)/10^7)"*latexify(u"cm/s"),titlefontsize=25)
+scatter!(plt_V_I1_KirKMCaLs_5,[gKM_range_KirKMCaLs[3]],[gKir_range_KirKMCaLs[29]],markershape=:circle,markersize=18,mc=:palevioletred2,markerstrokewidth=0.2,markerstrokecolor=:white)
+scatter!(plt_V_I1_KirKMCaLs_5,[gKM_range_KirKMCaLs[29]],[gKir_range_KirKMCaLs[3]],markershape=:circle,markersize=18,mc=:mediumpurple1,markerstrokewidth=0.2,markerstrokecolor=:white)
+scatter!(plt_V_I1_KirKMCaLs_5,[gKM_range_KirKMCaLs[29]],[gKir_range_KirKMCaLs[29]],markershape=:circle,markersize=18,mc=:goldenrod2,markerstrokewidth=0.2,markerstrokecolor=:white)
 
-#Plots.savefig(plt_f6_v8,"ChannelUpdate/cluster/figures/pdf/fig-4.pdf")
+i_pCaLs_fI =2
+I_fI_CaLs_2 = [I_list_KirKMCaLs_fI[i_pCaLs_fI][2][1],I_list_KirKMCaLs_fI[i_pCaLs_fI][1][2],I_list_KirKMCaLs_fI[i_pCaLs_fI][2][2]]
+f_fI_CaLs_2 = [f_list_KirKMCaLs_fI[i_pCaLs_fI][2][1],f_list_KirKMCaLs_fI[i_pCaLs_fI][1][2],f_list_KirKMCaLs_fI[i_pCaLs_fI][2][2]]
+I_VI_CaLs_2 = [I_stable_KirKMCaLs_fI[i_pCaLs_fI][2][1],I_stable_KirKMCaLs_fI[i_pCaLs_fI][1][2],I_stable_KirKMCaLs_fI[i_pCaLs_fI][2][2]]
+V_VI_CaLs_2 = [V_stable_KirKMCaLs_fI[i_pCaLs_fI][2][1],V_stable_KirKMCaLs_fI[i_pCaLs_fI][1][2],V_stable_KirKMCaLs_fI[i_pCaLs_fI][2][2]]
+I1_CaLs_2 = [I1_KirKMCaLs_fI[i_pCaLs_fI,2,1],I1_KirKMCaLs_fI[i_pCaLs_fI,1,2],I1_KirKMCaLs_fI[i_pCaLs_fI,2,2]]
+I2_CaLs_2 = [I2_KirKMCaLs_fI[i_pCaLs_fI,2,1],I2_KirKMCaLs_fI[i_pCaLs_fI,1,2],I2_KirKMCaLs_fI[i_pCaLs_fI,2,2]]
+V_I1_CaLs_2 = [V_I1_KirKMCaLs_fI[i_pCaLs_fI,2,1],V_I1_KirKMCaLs_fI[i_pCaLs_fI,1,2],V_I1_KirKMCaLs_fI[i_pCaLs_fI,2,2]]
+V_I2_CaLs_2 = [V_I2_KirKMCaLs_fI[i_pCaLs_fI,2,1],V_I2_KirKMCaLs_fI[i_pCaLs_fI,1,2],V_I2_KirKMCaLs_fI[i_pCaLs_fI,2,2]]
+xlims__CaLs_2 = [(0,4.5+5.5),(0,4.5+5.5),(0,4.5+5.5)]
+color_CaLs_2 = [:palevioletred2,:mediumpurple1,:goldenrod2]
+
+I_fI_CaLs_2 = reverse(I_fI_CaLs_2)
+f_fI_CaLs_2 = reverse(f_fI_CaLs_2)
+I_VI_CaLs_2 = reverse(I_VI_CaLs_2)
+V_VI_CaLs_2 = reverse(V_VI_CaLs_2)
+I1_CaLs_2 = reverse(I1_CaLs_2)
+I2_CaLs_2 = reverse(I2_CaLs_2)
+V_I1_CaLs_2 = reverse(V_I1_CaLs_2)
+V_I2_CaLs_2 = reverse(V_I2_CaLs_2)
+xlims__CaLs_2 = reverse(xlims__CaLs_2)
+color_CaLs_2 = reverse(color_CaLs_2)
+
+plt_fI_VI_list_CaLs_2 = plt_list_fI_VI(I_fI_CaLs_2,f_fI_CaLs_2,I_VI_CaLs_2,V_VI_CaLs_2,I1_CaLs_2,I2_CaLs_2,V_I1_CaLs_2,V_I2_CaLs_2,xlims__CaLs_2,color_CaLs_2)
+
+## Test 
+#==
+plt_dI = plot(legend=:outertopright,xlabel="gKir")
+for i in 1:1:31
+    plot!(plt_dI,dI_KirKMCaLs[i_pCaLs,:,i].-dI_KirKMCaLs[i_pCaLs,1,1],label="i=$i")
+end
+plot(plt_dI,size=(500,400))==#
+#==
+plt_dI = plot(legend=:outertopright,xlabel="gKM")
+for i in 1:1:31
+    plot!(plt_dI,dI_KirKMCaLs[1,i,:].-dI_KirKMCaLs[i_pCaLs,1,1],label="i=$i")
+end
+plot(plt_dI,size=(500,400))==#
+
+
+i_pCaLs = 3
+#plt_dI_KirKMCaLs_3 = plt_dI_grad(dI_KirKMCaLs[i_pCaLs,:,:],gKM_range_KirKMCaLs,gKir_range_KirKMCaLs,(0,2.75),L"\bar{g}_{\mathrm{KM}}",L"\bar{g}_{\mathrm{Kir}}")
+plt_dI_KirKMCaLs_3 = plt_dI_grad_(dI_KirKMCaLs[i_pCaLs,:,:].-dI_KirKMCaLs[i_pCaLs,1,1],gKM_range_KirKMCaLs,gKir_range_KirKMCaLs,(-1,+1).*clim_[5] ,L"\bar{g}_{\mathrm{KM}} \ \ "*L"[" *latexify(u"mS /cm^2") *L"]",L"\bar{g}_{\mathrm{Kir}} \ \ "*L"[" *latexify(u"mS /cm^2") *L"]")
+#plt_dI_KirKMCaLs_3 = plt_dI_grad(dI_KirKMCaLs[i_pCaLs,:,:],gKM_range_KirKMCaLs,gKir_range_KirKMCaLs,(-1,+1).*clim_[i_pCaLs] .+dI_KirKMCaLs[i_pCaLs,1,1],L"\bar{g}_{\mathrm{KM}}",L"\bar{g}_{\mathrm{Kir}}")
+plot!(plt_dI_KirKMCaLs_3[1],title=L"\bar{p}_{CaLs} = "*"$(round(pCaLs_range_KirKMCaLs[i_pCaLs]*1e7)/10^7)"*latexify(u"cm/s"),titlefontsize=25)
+scatter!(plt_dI_KirKMCaLs_3,[gKM_range_KirKMCaLs[3]],[gKir_range_KirKMCaLs[29]],markershape=:circle,markersize=18,mc=:green,markerstrokewidth=0.2,markerstrokecolor=:white)
+scatter!(plt_dI_KirKMCaLs_3,[gKM_range_KirKMCaLs[29]],[gKir_range_KirKMCaLs[3]],markershape=:circle,markersize=18,mc=:deepskyblue3,markerstrokewidth=0.2,markerstrokecolor=:white)
+scatter!(plt_dI_KirKMCaLs_3,[gKM_range_KirKMCaLs[29]],[gKir_range_KirKMCaLs[29]],markershape=:circle,markersize=18,mc=:gray35,markerstrokewidth=0.2,markerstrokecolor=:white)
+
+plt_V_I1_KirKMCaLs_3 = plt_Veq_grad(V_I1_KirKMCaLs[i_pCaLs,:,:],gKM_range_KirKMCaLs,gKir_range_KirKMCaLs,(-125,-55),L"\bar{g}_{\mathrm{KM}} \ \ "*L"[" *latexify(u"mS /cm^2") *L"]",L"\bar{g}_{\mathrm{Kir}} \ \ "*L"[" *latexify(u"mS /cm^2") *L"]")
+plot!(plt_V_I1_KirKMCaLs_3[1],title=L"\bar{p}_{CaLs} = "*"$(round(pCaLs_range_KirKMCaLs[i_pCaLs]*1e7)/10^7)"*latexify(u"cm/s"),titlefontsize=25)
+scatter!(plt_V_I1_KirKMCaLs_3,[gKM_range_KirKMCaLs[3]],[gKir_range_KirKMCaLs[29]],markershape=:circle,markersize=18,mc=:green,markerstrokewidth=0.2,markerstrokecolor=:white)
+scatter!(plt_V_I1_KirKMCaLs_3,[gKM_range_KirKMCaLs[29]],[gKir_range_KirKMCaLs[3]],markershape=:circle,markersize=18,mc=:deepskyblue3,markerstrokewidth=0.2,markerstrokecolor=:white)
+scatter!(plt_V_I1_KirKMCaLs_3,[gKM_range_KirKMCaLs[29]],[gKir_range_KirKMCaLs[29]],markershape=:circle,markersize=18,mc=:gray35,markerstrokewidth=0.2,markerstrokecolor=:white)
+
+i_pCaLs_fI =1
+I_fI_CaLs_1 = [I_list_KirKMCaLs_fI[i_pCaLs_fI][2][1],I_list_KirKMCaLs_fI[i_pCaLs_fI][1][2],I_list_KirKMCaLs_fI[i_pCaLs_fI][2][2]]
+f_fI_CaLs_1 = [f_list_KirKMCaLs_fI[i_pCaLs_fI][2][1],f_list_KirKMCaLs_fI[i_pCaLs_fI][1][2],f_list_KirKMCaLs_fI[i_pCaLs_fI][2][2]]
+I_VI_CaLs_1 = [I_stable_KirKMCaLs_fI[i_pCaLs_fI][2][1],I_stable_KirKMCaLs_fI[i_pCaLs_fI][1][2],I_stable_KirKMCaLs_fI[i_pCaLs_fI][2][2]]
+V_VI_CaLs_1 = [V_stable_KirKMCaLs_fI[i_pCaLs_fI][2][1],V_stable_KirKMCaLs_fI[i_pCaLs_fI][1][2],V_stable_KirKMCaLs_fI[i_pCaLs_fI][2][2]]
+I1_CaLs_1 = [I1_KirKMCaLs_fI[i_pCaLs_fI,2,1],I1_KirKMCaLs_fI[i_pCaLs_fI,1,2],I1_KirKMCaLs_fI[i_pCaLs_fI,2,2]]
+I2_CaLs_1 = [I2_KirKMCaLs_fI[i_pCaLs_fI,2,1],I2_KirKMCaLs_fI[i_pCaLs_fI,1,2],I2_KirKMCaLs_fI[i_pCaLs_fI,2,2]]
+V_I1_CaLs_1 = [V_I1_KirKMCaLs_fI[i_pCaLs_fI,2,1],V_I1_KirKMCaLs_fI[i_pCaLs_fI,1,2],V_I1_KirKMCaLs_fI[i_pCaLs_fI,2,2]]
+V_I2_CaLs_1 = [V_I2_KirKMCaLs_fI[i_pCaLs_fI,2,1],V_I2_KirKMCaLs_fI[i_pCaLs_fI,1,2],V_I2_KirKMCaLs_fI[i_pCaLs_fI,2,2]]
+#xlims__CaLs_1 = [(2.5,4+5.5),(2.5,4+5.5),(2.5,4+5.5)]
+xlims__CaLs_1 = [(0,4.5+5.5),(0,4.5+5.5),(0,4.5+5.5)]
+color_CaLs_1 = [:green,:deepskyblue3,:gray35]
+
+I_fI_CaLs_1 = reverse(I_fI_CaLs_1)
+f_fI_CaLs_1 = reverse(f_fI_CaLs_1)
+I_VI_CaLs_1 = reverse(I_VI_CaLs_1)
+V_VI_CaLs_1 = reverse(V_VI_CaLs_1)
+I1_CaLs_1 = reverse(I1_CaLs_1)
+I2_CaLs_1 = reverse(I2_CaLs_1)
+V_I1_CaLs_1 = reverse(V_I1_CaLs_1)
+V_I2_CaLs_1 = reverse(V_I2_CaLs_1)
+xlims__CaLs_1 = reverse(xlims__CaLs_1)
+color_CaLs_1 = reverse(color_CaLs_1)
+
+plt_fI_VI_list_CaLs_1 = plt_list_fI_VI(I_fI_CaLs_1,f_fI_CaLs_1,I_VI_CaLs_1,V_VI_CaLs_1,I1_CaLs_1,I2_CaLs_1,V_I1_CaLs_1,V_I2_CaLs_1,xlims__CaLs_1,color_CaLs_1)
+
+
+plt_fI_VI_list_2 =Plots.plot(empty_plt,plt_fI_VI_list_CaLs_2,empty_plt,layout=@layout[a{0.001w} b c{0.001w}])
+plt_fI_VI_list_1 =Plots.plot(empty_plt,plt_fI_VI_list_CaLs_1,empty_plt,layout=@layout[a{0.001w} b c{0.001w}])
+
+
+plt_dI_V_I1_KirKMCaLs_3 = Plots.plot(empty_plt,plt_dI_KirKMCaLs_3,empty_plt,plt_V_I1_KirKMCaLs_3,empty_plt,layout=@layout[a{0.001w}  b  c{0.03w}  d  e{0.001w} ],size=(2300,700),fontfamily="Computer Modern")
+plt_3_B2 = Plots.plot(empty_plt,title_kir_km_2_AB,plt_dI_V_I1_KirKMCaLs_3,title_kir_km_2_C,plt_fI_VI_list_1,empty_plt,layout=@layout[a{0.001h} ;b{0.001h}; c{0.4h} ; d{0.001h} ; e ;f{0.001h} ],size=(2300,1800),fontfamily="Computer Modern",foreground_color=:gray25)
+#Plots.savefig(plt_3_B2,"tests/figures/pdf/fig-3-B2.pdf")
+
+
+plt_dI_V_I1_KirKMCaLs_5 = Plots.plot(empty_plt,plt_dI_KirKMCaLs_5,empty_plt,plt_V_I1_KirKMCaLs_5,empty_plt,layout=@layout[a{0.001w}  b  c{0.03w}  d  e{0.001w} ],size=(2300,700),fontfamily="Computer Modern")
+plt_3_B1 = Plots.plot(empty_plt,title_kir_km_2_AB,plt_dI_V_I1_KirKMCaLs_5,title_kir_km_2_C,plt_fI_VI_list_2,empty_plt,layout=@layout[a{0.001h} ;b{0.001h}; c{0.4h} ; d{0.001h} ; e ;f{0.001h} ],size=(2300,1800),fontfamily="Computer Modern",foreground_color=:gray25)
+#Plots.savefig(plt_3_B1,"tests/figures/pdf/fig-3-B1.pdf")
+
+

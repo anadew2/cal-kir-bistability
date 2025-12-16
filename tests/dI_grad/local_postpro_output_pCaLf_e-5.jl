@@ -75,7 +75,7 @@ function load_dI_mat(jld_name)
 end
 
 
-    jld_name = "ChannelUpdate/cluster/dI_grad/data/jld_pCaLf_1.5e-5/dI_KirCaLs_pCaLf_1.5e-5"
+    jld_name = "tests/dI_grad/data/jld_pCaLf_1.5e-5/dI_KirCaLs_pCaLf_1.5e-5"
     #==
     # This block load the results from the separated jld files and combine them in a single jld 
         dI_KirCaLs = ones(length(pCaLs_range_KirCaLs[1:2:end]),length(gKir_range_KirCaLs[1:3:end])).*NaN
@@ -113,7 +113,7 @@ end
   
 
 
-    jld_name = "ChannelUpdate/cluster/dI_grad/data/jld_pCaLf_1.5e-5/dI_KMCaLs_pCaLf_1.5e-5"
+    jld_name = "tests/dI_grad/data/jld_pCaLf_1.5e-5/dI_KMCaLs_pCaLf_1.5e-5"
     #==
     # This block load the results from the separated jld files and combine them in a single jld 
         dI_KMCaLs = ones(length(pCaLs_range_KMCaLs[1:2:end]),length(gKM_range_KMCaLs[1:3:end])).*NaN

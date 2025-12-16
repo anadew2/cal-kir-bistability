@@ -185,7 +185,7 @@ function find_Vr_I1_I2_clust(p,FP_fun,pCaLf_,pCaLs_,gKDR_,gKir_,gKM_,I1_,I2_,V_e
 end
 
 
-    jld_name = "ChannelUpdate/cluster/dI_grad/data/jld/jld/dI_KirCaLs"
+    jld_name = "tests/dI_grad/data/jld/jld/dI_KirCaLs"
     #==
     # This block load the results from the separated jld files and combine them in a single jld 
         dI_KirCaLs = ones(length(pCaLs_range_KirCaLs),length(gKir_range_KirCaLs)).*NaN
@@ -251,7 +251,7 @@ end
     
    
 
-    jld_name = "ChannelUpdate/cluster/dI_grad/data/jld/jld/dI_KMCaLs"
+    jld_name = "tests/dI_grad/data/jld/jld/dI_KMCaLs"
     #==
     # This block load the results from the separated jld files and combine them in a single jld 
         dI_KMCaLs = ones(length(pCaLs_range_KMCaLs),length(gKM_range_KMCaLs)).*NaN

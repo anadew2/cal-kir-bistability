@@ -82,7 +82,7 @@ p_fixed = [C,eNa,eK,eCa,eleak,Ca_o,k,F,d,Ca_i_0,tau_Ca]
 pCaLs_range_KMCaLs = range(0.,stop=0.01725/1000,length=47)
 gKM_range_KMCaLs = range(0.,stop=0.3,length=51)
 
-jld_name = "ChannelUpdate/cluster/dI_noise/data/input/dI_KMCaLs"
+jld_name = "tests/dI_noise/data/input/dI_KMCaLs"
 dI_KMCaLs,I1_KMCaLs,I2_KMCaLs,VSN_KMCaLs = load_dI_mat(string(jld_name,"_1e-2_1e-5.jld"))
  
 

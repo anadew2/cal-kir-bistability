@@ -75,7 +75,7 @@ function load_dI_mat(jld_name)
 end
 
 
-    jld_name = "ChannelUpdate/cluster/dI_grad/data/jld_larger_range_kir/dI_KirCaLs_larger_range"
+    jld_name = "tests/dI_grad/data/jld_larger_range_kir/dI_KirCaLs_larger_range"
     #==
     # This block load the results from the separated jld files and combine them in a single jld 
         dI_KirCaLs = ones(length(pCaLs_range_KirCaLs),length(gKir_range_KirCaLs)).*NaN
@@ -119,6 +119,9 @@ end
     Plots.plot!(pCaLs_range_KirCaLs,dI_KirCaLs[:,11],label="gKir=1.",marker=:rect,lw=2,markerstrokewidth=0.,ms=3)
     Plots.plot!(pCaLs_range_KirCaLs,dI_KirCaLs[:,16],label="gKir=1.5",marker=:rect,lw=2,markerstrokewidth=0.,ms=3)
     
+    R       = 8.3134
+    celsius = 36
+    T=celsius+273.15
     gCaLs_eq_KirCaLs = pCaLs_range_KirCaLs .*((1e-6) *2*F*2*F*Ca_o *(1e3)/(R*T)) #mS/cm^2
 
     plt_kir_ghk_m = Plots.plot(fontfamily="Computer Modern",xlabel="gCaLs_eq",ylabel="delta I ",title="Original m_inf,  ICaLs =pCaLs.m.h.GHK(V,Ca)   ",ylims=(-0.1,3.1))
@@ -131,7 +134,7 @@ end
     Plots.plot!(gCaLs_eq_KirCaLs,dI_KirCaLs[:,16],label="gKir=1.5",marker=:rect,lw=2,markerstrokewidth=0.,ms=3)
     
 
-    jld_name = "ChannelUpdate/cluster/dI_grad/data/jld_larger_range/dI_KMCaLs_larger_range"
+    jld_name = "tests/dI_grad/data/jld_larger_range/dI_KMCaLs_larger_range"
     #==
     # This block load the results from the separated jld files and combine them in a single jld 
         dI_KMCaLs = ones(length(pCaLs_range_KMCaLs),length(gKM_range_KMCaLs)).*NaN
