@@ -1,3 +1,4 @@
 {
-    "workbench.colorTheme": "Red"
+    "workbench.colorTheme": "Red",
+    "julia.environmentPath": ".vscode/env"
 }
